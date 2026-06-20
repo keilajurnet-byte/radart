@@ -1,0 +1,3771 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Radar T — Conexión Productiva Local (Piloto 2026)</title>
+  <!-- Google Fonts: Nunito -->
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Canvas Confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            rtPink: '#E91B8C',
+            rtGreen: '#4BB543',
+            rtYellow: '#F7C022',
+            rtBlue: '#1B96D5',
+            rtPurple: '#9B59B6',
+            rtTeal: '#1BBFBF',
+            rtDark: '#1A1A2E',
+            rtGray: '#6B7280',
+            rtBorder: '#EDEFF2',
+            rtPinkLight: '#FDE8F4',
+            rtGreenLight: '#E8F8E7',
+            rtYellowLight: '#FEF8E3',
+            rtBlueLight: '#E3F4FC',
+            rtPurpleLight: '#F2EAF8',
+            rtTealLight: '#E3F8F8',
+          },
+          fontFamily: {
+            sans: ['Nunito', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      font-family: 'Nunito', sans-serif;
+      background-color: #f3f4f6;
+      color: #1a1a2e;
+    }
+    /* 3D Button Effect */
+    .btn-3d {
+      position: relative;
+      transition: transform 0.1s, box-shadow 0.1s;
+    }
+    .btn-3d:active {
+      transform: translateY(3px);
+      box-shadow: none !important;
+    }
+    /* Hide scrollbars */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    /* Rainbow divider */
+    .rainbow-bar {
+      background: linear-gradient(90deg, #E91B8C, #F7C022, #4BB543, #1B96D5, #9B59B6);
+    }
+    /* Phone frame for student view on desktop */
+    .phone-frame {
+      width: 410px;
+      height: 840px;
+      border: 12px solid #1e293b;
+      border-radius: 40px;
+      background-color: #ffffff;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.3);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    @media (max-width: 640px) {
+      .phone-frame {
+        width: 100vw;
+        height: 100vh;
+        border: none;
+        border-radius: 0;
+        box-shadow: none;
+      }
+    }
+    .phone-screen {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding-bottom: 70px;
+    }
+    /* Custom input focus ring */
+    .input-focus:focus {
+      border-color: #E91B8C;
+      box-shadow: 0 0 0 3px rgba(233, 27, 140, 0.15);
+    }
+  </style>
+</head>
+<body class="min-h-screen overflow-x-hidden">
+
+  <!-- TOP RAINBOW BAR -->
+  <div class="rainbow-bar h-2 w-full fixed top-0 left-0 right-0 z-50"></div>
+
+  <!-- TOAST NOTIFICATION CONTAINER -->
+  <div id="toast-container" class="fixed top-6 right-6 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- MAIN APP CONTAINER -->
+  <div id="app" class="pt-2">
+
+    <!-- ==================== LANDING & LOGIN / ABOUT VIEW (DESKTOP) ==================== -->
+    <div id="view-landing" class="min-h-screen flex flex-col justify-between bg-slate-50">
+      
+      <!-- Navbar -->
+      <header class="bg-white border-b border-slate-100 shadow-sm px-6 py-4 flex items-center justify-between">
+        <div class="flex items-center gap-2 cursor-pointer" onclick="showLandingSection('landing-home')">
+          <span class="text-3xl font-black tracking-tight">
+            <span class="text-rtPink">R</span><span class="text-rtYellow">a</span><span class="text-rtGreen">d</span><span class="text-rtBlue">a</span><span class="text-rtPurple">r</span> <span class="text-rtTeal">T</span>
+          </span>
+          <span class="text-xs font-bold bg-rtBlueLight text-rtBlue px-2 py-0.5 rounded-md">Piloto 2026</span>
+        </div>
+        <nav class="hidden md:flex items-center gap-6">
+          <button onclick="showLandingSection('landing-about')" class="font-bold text-slate-600 hover:text-rtPink transition-colors">¿Qué es Radar T?</button>
+          <button onclick="showLandingSection('landing-scale')" class="font-bold text-slate-600 hover:text-rtPink transition-colors">Escalabilidad</button>
+          <button onclick="showLandingSection('landing-login')" class="bg-rtPink text-white font-black px-5 py-2.5 rounded-2xl btn-3d shadow-[0_4px_0_#9a0050] hover:bg-rtPink/90">Iniciar Sesión</button>
+        </nav>
+        <button onclick="showLandingSection('landing-login')" class="md:hidden bg-rtPink text-white font-black px-4 py-2 rounded-xl text-sm btn-3d shadow-[0_3px_0_#9a0050]">Ingresar</button>
+      </header>
+
+      <!-- Subsections within Landing -->
+      <div class="flex-1 flex items-center justify-center p-4">
+        
+        <!-- SUBSECTION 1: LANDING HOME -->
+        <div id="landing-home" class="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 items-center py-12">
+          <div class="space-y-6">
+            <h1 class="text-4xl md:text-6xl font-black tracking-tight text-rtDark leading-none">
+              ¿Listo para tu <span class="text-rtPink">primera misión</span> real?
+            </h1>
+            <p className="text-lg text-slate-600 font-bold">
+              Conectamos desafíos reales de empresas locales de Rada Tilly con estudiantes que desean acreditar sus prácticas profesionalizantes de forma dinámica y gamificada.
+            </p>
+            <div class="flex flex-wrap gap-4">
+              <button onclick="showLandingSection('landing-login')" class="bg-rtPink text-white font-black text-lg px-8 py-4 rounded-2xl btn-3d shadow-[0_4px_0_#9a0050] flex items-center gap-2">
+                <i data-lucide="play" class="w-5 h-5"></i> Comenzar la Demo
+              </button>
+              <button onclick="showLandingSection('landing-about')" class="bg-white border-2 border-rtDark text-rtDark font-black text-lg px-8 py-4 rounded-2xl btn-3d shadow-[0_4px_0_#1a1a2e] flex items-center gap-2">
+                Saber más <i data-lucide="info" class="w-5 h-5"></i>
+              </button>
+            </div>
+            <div class="pt-4 flex items-center gap-3">
+              <span class="flex h-3 w-3 relative">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rtGreen opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-3 w-3 bg-rtGreen"></span>
+              </span>
+              <span class="text-xs font-bold text-slate-500">Piloto Activo: Rada Tilly, Chubut 🐳</span>
+            </div>
+          </div>
+          <div class="flex justify-center">
+            <div class="relative w-80 h-80 bg-gradient-to-tr from-rtPinkLight via-rtTealLight to-rtYellowLight rounded-full flex items-center justify-center shadow-inner">
+              <div class="text-8xl animate-bounce">📡</div>
+              <div class="absolute top-8 left-8 text-4xl">🐳</div>
+              <div class="absolute bottom-8 right-8 text-4xl">🎒</div>
+              <div class="absolute top-1/2 -right-4 text-4xl">🏢</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SUBSECTION 2: ABOUT / PROPOSITIONS -->
+        <div id="landing-about" class="hidden max-w-5xl mx-auto py-12 space-y-12">
+          <div class="text-center max-w-2xl mx-auto space-y-4">
+            <h2 class="text-4xl font-black text-rtDark">El Puente entre Educación y Producción</h2>
+            <p class="font-bold text-slate-600">Un ecosistema diseñado para potenciar comunidades en reconversión económica.</p>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Estudiantes -->
+            <div class="bg-white border-2 border-rtGreen rounded-3xl p-6 shadow-md hover:shadow-lg transition-shadow border-b-[8px] flex flex-col justify-between">
+              <div>
+                <div class="text-4xl mb-4">🎒</div>
+                <h3 class="text-2xl font-black text-rtGreen mb-3">Para Estudiantes</h3>
+                <ul class="space-y-2 text-sm text-slate-600 font-bold">
+                  <li class="flex gap-2"><i data-lucide="check" class="w-4 h-4 text-rtGreen shrink-0 mt-0.5"></i> Primera experiencia laboral real.</li>
+                  <li class="flex gap-2"><i data-lucide="check" class="w-4 h-4 text-rtGreen shrink-0 mt-0.5"></i> Test de orientación vocacional integrado.</li>
+                  <li class="flex gap-2"><i data-lucide="check" class="w-4 h-4 text-rtGreen shrink-0 mt-0.5"></i> Certificaciones válidas en la provincia.</li>
+                  <li class="flex gap-2"><i data-lucide="check" class="w-4 h-4 text-rtGreen shrink-0 mt-0.5"></i> Perfil gamificado con XP, niveles y logros.</li>
+                </ul>
+              </div>
+              <button onclick="selectRole('estudiante')" class="mt-6 w-full bg-rtGreen text-white font-black py-3 rounded-2xl btn-3d shadow-[0_4px_0_#2b7326]">Unirse como Estudiante</button>
+            </div>
+
+            <!-- Empresas -->
+            <div class="bg-white border-2 border-rtBlue rounded-3xl p-6 shadow-md hover:shadow-lg transition-shadow border-b-[8px] flex flex-col justify-between">
+              <div>
+                <div class="text-4xl mb-4">🏢</div>
+                <h3 class="text-2xl font-black text-rtBlue mb-3">Para Empresas</h3>
+                <ul class="space-y-2 text-sm text-slate-600 font-bold">
+                  <li class="flex gap-2"><i data-lucide="check" class="w-4 h-4 text-rtBlue shrink-0 mt-0.5"></i> Publicar desafíos en menos de 2 clics.</li>
+                  <li class="flex gap-2"><i data-lucide="check" class="w-4 h-4 text-rtBlue shrink-0 mt-0.5"></i> Acceder a talento local calificado.</li>
+                  <li class="flex gap-2"><i data-lucide="check" class="w-4 h-4 text-rtBlue shrink-0 mt-0.5"></i> Cero burocracia en reclutamiento.</li>
+                  <li class="flex gap-2"><i data-lucide="check" class="w-4 h-4 text-rtBlue shrink-0 mt-0.5"></i> RSE tangible vinculada con la escuela.</li>
+                </ul>
+              </div>
+              <button onclick="selectRole('empresa')" class="mt-6 w-full bg-rtBlue text-white font-black py-3 rounded-2xl btn-3d shadow-[0_4px_0_#0f5b82]">Registrar Empresa</button>
+            </div>
+
+            <!-- Docentes -->
+            <div class="bg-white border-2 border-rtPurple rounded-3xl p-6 shadow-md hover:shadow-lg transition-shadow border-b-[8px] flex flex-col justify-between">
+              <div>
+                <div class="text-4xl mb-4">🏫</div>
+                <h3 class="text-2xl font-black text-rtPurple mb-3">Para Docentes</h3>
+                <ul class="space-y-2 text-sm text-slate-600 font-bold">
+                  <li class="flex gap-2"><i data-lucide="check" class="w-4 h-4 text-rtPurple shrink-0 mt-0.5"></i> Seguimiento completo de prácticas del curso.</li>
+                  <li class="flex gap-2"><i data-lucide="check" class="w-4 h-4 text-rtPurple shrink-0 mt-0.5"></i> Gráfico consolidado de intereses de alumnos.</li>
+                  <li class="flex gap-2"><i data-lucide="check" class="w-4 h-4 text-rtPurple shrink-0 mt-0.5"></i> Alertas y semáforos de plazos de entrega.</li>
+                  <li class="flex gap-2"><i data-lucide="check" class="w-4 h-4 text-rtPurple shrink-0 mt-0.5"></i> Validación y firma digital ágil.</li>
+                </ul>
+              </div>
+              <button onclick="selectRole('docente')" class="mt-6 w-full bg-rtPurple text-white font-black py-3 rounded-2xl btn-3d shadow-[0_4px_0_#623475]">Acceso Docentes</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- SUBSECTION 3: SCALABILITY -->
+        <div id="landing-scale" class="hidden max-w-5xl mx-auto py-12 space-y-12">
+          <div class="text-center max-w-2xl mx-auto space-y-4">
+            <h2 class="text-4xl font-black text-rtDark">Escalabilidad Nacional</h2>
+            <p class="font-bold text-slate-600">Una solución modular aplicable a cualquier municipio en transición productiva de la Argentina.</p>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            <!-- ARGENTINA MAP -->
+            <div class="lg:col-span-5 bg-white border-2 border-slate-900 rounded-3xl p-6 shadow-md flex justify-center">
+              <svg id="argentina-map" viewBox="0 0 400 800" class="w-full max-h-[600px] text-slate-300">
+                <!-- Simple SVG path map of Argentina -->
+                <path d="M120 70 L200 50 L250 80 L230 150 L260 210 L280 250 L290 320 L270 380 L290 420 L270 460 L240 500 L210 560 L190 620 L170 680 L160 740 L120 780 L140 700 L160 650 L170 590 L170 530 L190 470 L210 420 L220 370 L190 310 L150 280 L140 220 L130 160 Z" fill="#e2e8f0" stroke="#94a3b8" stroke-width="2"/>
+                
+                <!-- Pins -->
+                <!-- Rada Tilly -->
+                <circle id="pin-rada-tilly" cx="185" cy="580" r="10" fill="#E91B8C" class="cursor-pointer hover:scale-125 transition-transform" onclick="selectMapPin('rada-tilly')" />
+                <circle cx="185" cy="580" r="15" fill="none" stroke="#E91B8C" stroke-width="2" class="animate-ping" />
+                
+                <!-- Malargue -->
+                <circle id="pin-malargue" cx="160" cy="380" r="8" fill="#F7C022" class="cursor-pointer hover:scale-125 transition-transform" onclick="selectMapPin('malargue')" />
+                
+                <!-- Rufino -->
+                <circle id="pin-rufino" cx="230" cy="320" r="8" fill="#F7C022" class="cursor-pointer hover:scale-125 transition-transform" onclick="selectMapPin('rufino')" />
+
+                <!-- Zapala -->
+                <circle id="pin-zapala" cx="150" cy="460" r="8" fill="#F7C022" class="cursor-pointer hover:scale-125 transition-transform" onclick="selectMapPin('zapala')" />
+              </svg>
+            </div>
+
+            <!-- PIN DETAILS & TEXT -->
+            <div class="lg:col-span-7 space-y-6">
+              <div id="pin-detail-card" class="bg-white border-2 border-slate-950 rounded-3xl p-6 shadow-md space-y-4">
+                <div class="flex items-center gap-3">
+                  <span id="pin-badge" class="bg-rtPinkLight text-rtPink text-xs font-bold px-3 py-1 rounded-full">Piloto Activo</span>
+                  <h3 id="pin-title" class="text-2xl font-black text-rtDark">Rada Tilly, Chubut</h3>
+                </div>
+                <p id="pin-desc" class="text-slate-600 font-bold">
+                  La cuna de la transición petrolera al turismo sustentable de la ballena sei. Aquí implementamos las primeras 6 misiones con la Escuela E.E.S. N° 736 "Madres de Plaza de Mayo", el Municipio y CONICET.
+                </p>
+                <div class="grid grid-cols-2 gap-4 pt-2">
+                  <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                    <span class="text-xs text-slate-400 font-bold">Sector Productivo</span>
+                    <p id="pin-sector" class="font-extrabold text-sm text-slate-800">Ecoturismo y Conservación</p>
+                  </div>
+                  <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                    <span class="text-xs text-slate-400 font-bold">Escuelas asociadas</span>
+                    <p id="pin-escuelas" class="font-extrabold text-sm text-slate-800">1 (E.E.S. N° 736)</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="bg-rtBlueLight border-2 border-rtBlue rounded-3xl p-6 space-y-3">
+                <h4 class="text-xl font-black text-rtBlue">¿Cómo se adapta a otra localidad?</h4>
+                <p class="text-sm font-bold text-slate-700">
+                  Radar T es una plataforma paramétrica. Cada municipio define sus <strong>Ejes Productivos Locales</strong> y asocia colegios secundarios. Los desafíos siguen una metodología homologable según la <strong>Resolución CFE 261/06</strong> sobre prácticas profesionalizantes.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SUBSECTION 4: LOGIN SCREEN -->
+        <div id="landing-login" class="hidden w-full max-w-md bg-white border-2 border-slate-900 rounded-3xl p-8 shadow-xl space-y-6">
+          <div class="text-center space-y-2">
+            <h2 class="text-3xl font-black text-rtDark">Iniciar Sesión</h2>
+            <p class="text-sm font-bold text-slate-500">Accedé a tu perfil de Radar T</p>
+          </div>
+
+          <form id="login-form" onsubmit="event.preventDefault(); triggerAuth();" class="space-y-4">
+            <div>
+              <label class="block text-sm font-extrabold text-slate-700 mb-1">Correo electrónico</label>
+              <input type="email" id="login-email" required placeholder="correo@ejemplo.com" class="w-full border-2 border-slate-200 rounded-2xl px-4 py-3 font-semibold focus:outline-none input-focus">
+            </div>
+            <div>
+              <div class="flex justify-between items-center mb-1">
+                <label class="block text-sm font-extrabold text-slate-700">Contraseña</label>
+              </div>
+              <div class="relative">
+                <input type="password" id="login-password" required placeholder="••••••••" class="w-full border-2 border-slate-200 rounded-2xl px-4 py-3 font-semibold focus:outline-none input-focus">
+                <button type="button" onclick="togglePasswordVisibility()" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                  <i data-lucide="eye" class="w-5 h-5"></i>
+                </button>
+              </div>
+            </div>
+            <button type="submit" class="w-full bg-rtPink text-white font-black py-4 rounded-2xl btn-3d shadow-[0_4px_0_#9a0050] text-lg">
+              Ingresar →
+            </button>
+          </form>
+
+          <!-- DEMO SHORTCUTS -->
+          <div class="border-t-2 border-dashed border-slate-100 pt-6 space-y-4">
+            <p class="text-center text-xs font-black text-slate-400 uppercase tracking-wider">Accesos Rápidos para Demo</p>
+            <div class="grid grid-cols-1 gap-2">
+              <button onclick="fillLogin('valentina@ees736.edu.ar', 'radar123')" class="flex items-center justify-between bg-rtGreenLight border border-rtGreen/30 text-rtGreen font-black px-4 py-3 rounded-xl text-sm hover:bg-rtGreen/10 transition-colors">
+                <span>🎒 Estudiante (Valentina)</span>
+                <span class="text-xs font-bold text-slate-500">4°B</span>
+              </button>
+              <button onclick="fillLogin('empresa@avistajepatagonia.com', 'radar123')" class="flex items-center justify-between bg-rtBlueLight border border-rtBlue/30 text-rtBlue font-black px-4 py-3 rounded-xl text-sm hover:bg-rtBlue/10 transition-colors">
+                <span>🏢 Empresa (Avistaje Pat.)</span>
+                <span class="text-xs font-bold text-slate-500">Admin</span>
+              </button>
+              <button onclick="fillLogin('docente@ees736.edu.ar', 'radar123')" class="flex items-center justify-between bg-rtPurpleLight border border-rtPurple/30 text-rtPurple font-black px-4 py-3 rounded-xl text-sm hover:bg-rtPurple/10 transition-colors">
+                <span>🏫 Docente (Prof. Martínez)</span>
+                <span class="text-xs font-bold text-slate-500">4°B & 5°A</span>
+              </button>
+            </div>
+            <div class="text-center">
+              <button onclick="changeScreenDirect('view-student', 'screen-select-rol')" class="text-xs text-rtPink font-bold hover:underline">
+                ¿No tenés cuenta? Creá una cuenta de invitado
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Footer -->
+      <footer class="bg-rtDark text-white px-6 py-6 border-t-4 border-rtPink flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
+        <p class="text-xs font-bold text-slate-400">© 2026 Radar T - Conexión Cívica & Educación. Desarrollado con ❤️ para Rada Tilly, Chubut.</p>
+        <div class="flex gap-4 text-xs font-bold text-slate-400">
+          <a href="#" class="hover:text-white transition-colors">Términos</a>
+          <span>·</span>
+          <a href="#" class="hover:text-white transition-colors">Privacidad</a>
+          <span>·</span>
+          <button onclick="showLandingSection('landing-scale')" class="hover:text-white transition-colors">Mapa de Expansión</button>
+        </div>
+      </footer>
+
+    </div>
+
+
+    <!-- ==================== STUDENT PORTAL (MOBILE WRAPPER) ==================== -->
+    <div id="view-student" class="hidden min-h-screen bg-slate-100 flex justify-center items-center py-6">
+      <div class="phone-frame">
+        <div class="phone-screen bg-white">
+          
+          <!-- STATUS BAR SIMULATION -->
+          <div class="bg-white px-6 py-3 flex justify-between items-center text-xs font-bold text-slate-600 relative select-none">
+            <span>9:41</span>
+            <div class="w-24 h-5 bg-slate-900 rounded-full absolute left-1/2 transform -translate-x-1/2 top-1.5 flex items-center justify-center">
+              <span class="w-2.5 h-2.5 bg-slate-800 rounded-full border border-slate-700 block absolute left-4"></span>
+            </div>
+            <div class="flex gap-1.5 items-center">
+              <i data-lucide="signal" class="w-3.5 h-3.5"></i>
+              <i data-lucide="wifi" class="w-3.5 h-3.5"></i>
+              <i data-lucide="battery" class="w-3.5 h-3.5"></i>
+            </div>
+          </div>
+
+          <!-- TOP BRAND BAR -->
+          <div class="px-4 py-2 border-b border-slate-100 flex justify-between items-center">
+            <span class="text-2xl font-black tracking-tight" onclick="goToStudentHome()">
+              <span class="text-rtPink">R</span><span class="text-rtYellow">a</span><span class="text-rtGreen">d</span><span class="text-rtBlue">a</span><span class="text-rtPurple">r</span> <span class="text-rtTeal">T</span>
+            </span>
+            <button onclick="logout()" class="text-xs font-bold text-slate-400 hover:text-slate-600 flex items-center gap-1">
+              <i data-lucide="log-out" class="w-4 h-4"></i> Salir
+            </button>
+          </div>
+
+          <!-- INNER SCREEN CONTENT -->
+          <div id="student-content" class="flex-1 overflow-y-auto p-4 pb-20 no-scrollbar">
+            
+            <!-- SCREEN: SELECT ROL -->
+            <div id="screen-select-rol" class="space-y-6">
+              <div class="text-center space-y-2 py-4">
+                <h2 class="text-2xl font-black text-rtDark">Crear Cuenta</h2>
+                <p class="text-sm font-bold text-slate-500">Elegí tu tipo de perfil para empezar</p>
+              </div>
+              <div class="space-y-4">
+                <div onclick="startStudentRegistration()" class="bg-rtGreenLight border-2 border-rtGreen rounded-2xl p-5 cursor-pointer hover:scale-[1.01] transition-transform border-b-[6px] shadow-sm">
+                  <div class="text-3xl mb-2">🎒</div>
+                  <h4 class="text-lg font-black text-rtGreen">Estudiante</h4>
+                  <p class="text-xs font-bold text-slate-600">Postulate a misiones, ganá XP y obtené certificados oficiales.</p>
+                </div>
+                <div onclick="startCompanyRegistration()" class="bg-rtBlueLight border-2 border-rtBlue rounded-2xl p-5 cursor-pointer hover:scale-[1.01] transition-transform border-b-[6px] shadow-sm">
+                  <div class="text-3xl mb-2">🏢</div>
+                  <h4 class="text-lg font-black text-rtBlue">Empresa / Emprendedor</h4>
+                  <p class="text-xs font-bold text-slate-600">Publicá desafíos y evaluá el desempeño de los alumnos.</p>
+                </div>
+                <div onclick="startDocenteRegistration()" class="bg-rtPurpleLight border-2 border-rtPurple rounded-2xl p-5 cursor-pointer hover:scale-[1.01] transition-transform border-b-[6px] shadow-sm">
+                  <div class="text-3xl mb-2">🏫</div>
+                  <h4 class="text-lg font-black text-rtPurple">Docente</h4>
+                  <p class="text-xs font-bold text-slate-600">Acompañá y validá las prácticas de tus estudiantes.</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- REGISTRATION STEP 1: DATOS -->
+            <div id="student-reg-1" class="hidden space-y-5">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-black text-slate-400">Paso 1 de 4</span>
+                <span class="text-xs font-black text-rtPink">DATOS BÁSICOS</span>
+              </div>
+              <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                <div class="bg-rtPink h-full" style="width: 25%"></div>
+              </div>
+              <div class="space-y-4">
+                <div>
+                  <label class="block text-xs font-black text-slate-500 mb-1">Nombre Completo</label>
+                  <input type="text" id="reg-student-name" placeholder="Ej: Valentina López" class="w-full border-2 border-slate-200 rounded-xl px-3 py-2 text-sm font-semibold focus:outline-none input-focus">
+                </div>
+                <div>
+                  <label class="block text-xs font-black text-slate-500 mb-1">Año Escolar</label>
+                  <select id="reg-student-year" class="w-full border-2 border-slate-200 rounded-xl px-3 py-2 text-sm font-semibold focus:outline-none input-focus">
+                    <option value="">Seleccioná tu año...</option>
+                    <option value="3">3° Año</option>
+                    <option value="4">4° Año</option>
+                    <option value="5">5° Año</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-xs font-black text-slate-500 mb-1">Email Escolar/Personal</label>
+                  <input type="email" id="reg-student-email" placeholder="nombre@ees736.edu.ar" class="w-full border-2 border-slate-200 rounded-xl px-3 py-2 text-sm font-semibold focus:outline-none input-focus">
+                  <span class="text-[10px] text-slate-400 font-bold">Usá el mail de tu escuela si tenés. Recibirás ahí los certificados.</span>
+                </div>
+                <div>
+                  <label class="block text-xs font-black text-slate-500 mb-1">Contraseña</label>
+                  <input type="password" id="reg-student-pass" placeholder="••••••••" class="w-full border-2 border-slate-200 rounded-xl px-3 py-2 text-sm font-semibold focus:outline-none input-focus">
+                </div>
+                <div class="bg-rtYellowLight border border-rtYellow/50 rounded-xl p-3 text-[11px] font-bold text-slate-700">
+                  ⚠️ Radar T es educativo para 15-18 años. Tus datos no se comparten con terceros ni empresas sin consentimiento. Tu docente supervisará tu actividad.
+                </div>
+                <label class="flex items-start gap-2.5 cursor-pointer">
+                  <input type="checkbox" id="reg-student-agree" class="mt-0.5 w-4 h-4 rounded border-slate-200">
+                  <span class="text-[11px] font-bold text-slate-600">Acepto los términos de uso, privacidad y políticas de menores de Radar T.</span>
+                </label>
+              </div>
+              <button onclick="submitStudentReg1()" class="w-full bg-rtPink text-white font-black py-3 rounded-2xl btn-3d shadow-[0_4px_0_#9a0050] text-sm">Siguiente Paso →</button>
+            </div>
+
+            <!-- REGISTRATION STEP 1.5: CURSO & DOCENTE -->
+            <div id="student-reg-1-5" class="hidden space-y-5">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-black text-slate-400">Paso 2 de 4</span>
+                <span class="text-xs font-black text-rtPurple">CURSO Y DOCENTE</span>
+              </div>
+              <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                <div class="bg-rtPurple h-full" style="width: 50%"></div>
+              </div>
+              <div class="space-y-4">
+                <h3 class="text-lg font-black text-rtDark">¿Cuál es tu curso?</h3>
+                <p class="text-xs font-bold text-slate-500">Seleccioná tu división para asignarte a tu profesor tutor de prácticas.</p>
+                
+                <div class="grid grid-cols-2 gap-2" id="course-selector-grid">
+                  <!-- Generated by JS -->
+                </div>
+
+                <div id="teacher-assignment-box" class="hidden bg-rtPurpleLight border-2 border-rtPurple rounded-2xl p-4 space-y-2">
+                  <span class="text-xs font-black text-rtPurple uppercase tracking-wider">Docente Tutor Asignado</span>
+                  <div class="flex items-center gap-3">
+                    <div class="text-2xl">👩‍🏫</div>
+                    <div>
+                      <p id="assigned-teacher-name" class="font-extrabold text-sm text-slate-800">Prof. Laura Martínez</p>
+                      <p id="assigned-teacher-subject" class="text-xs font-bold text-slate-500">Economía y Administración</p>
+                    </div>
+                  </div>
+                </div>
+
+                <label class="flex items-start gap-2.5 cursor-pointer">
+                  <input type="checkbox" id="reg-student-share-teacher" checked class="mt-0.5 w-4 h-4 rounded border-slate-200">
+                  <span class="text-[11px] font-bold text-slate-600">Autorizo a mi docente tutor a supervisar mis postulaciones, ver mi progreso y validar mis misiones para los certificados.</span>
+                </label>
+              </div>
+              <button onclick="submitStudentReg15()" class="w-full bg-rtPurple text-white font-black py-3 rounded-2xl btn-3d shadow-[0_4px_0_#623475] text-sm">Siguiente Paso: Cuestionario →</button>
+            </div>
+
+            <!-- REGISTRATION STEP 2: TEST VOCACIONAL -->
+            <div id="student-reg-2" class="hidden space-y-5">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-black text-slate-400">Paso 3 de 4</span>
+                <span class="text-xs font-black text-rtTeal">TEST VOCACIONAL</span>
+              </div>
+              <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                <div class="bg-rtTeal h-full" style="width: 75%"></div>
+              </div>
+              
+              <div id="quiz-question-container" class="space-y-4">
+                <!-- Dynamically injected questions -->
+              </div>
+            </div>
+
+            <!-- REGISTRATION STEP 2.5: LOADING ANALYSIS -->
+            <div id="student-reg-loading" class="hidden flex flex-col items-center justify-center py-20 space-y-4">
+              <div class="w-12 h-12 border-4 border-rtPink border-t-transparent rounded-full animate-spin"></div>
+              <p class="font-extrabold text-sm text-slate-700 animate-pulse">Analizando tus intereses con IA de Radar T...</p>
+            </div>
+
+            <!-- REGISTRATION STEP 3: RESULTADOS -->
+            <div id="student-reg-3" class="hidden space-y-6">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-black text-slate-400">Paso 4 de 4</span>
+                <span class="text-xs font-black text-rtGreen font-extrabold">¡PERFIL LISTO!</span>
+              </div>
+              <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                <div class="bg-rtGreen h-full" style="width: 100%"></div>
+              </div>
+
+              <div class="text-center space-y-4">
+                <h3 class="text-2xl font-black text-rtDark">¡Felicitaciones! 🎉</h3>
+                <p class="text-sm font-bold text-slate-500">Tenemos tu resultado de orientación vocacional:</p>
+                
+                <div id="reg-result-card" class="border-[3px] border-slate-900 rounded-3xl p-6 text-center shadow-[4px_4px_0px_#1a1a2e]">
+                  <div id="reg-result-emoji" class="text-6xl mb-3">🐳</div>
+                  <h4 id="reg-result-title" class="text-2xl font-black uppercase text-rtPink">GUARDIÁN PATAGÓNICO</h4>
+                  <div class="bg-white border-2 border-slate-100 rounded-2xl p-4 text-left mt-4">
+                    <p class="text-xs text-slate-400 font-bold">TUS FORTALEZAS:</p>
+                    <ul id="reg-result-strengths" class="list-disc list-inside text-xs font-bold text-slate-700 mt-1 space-y-1">
+                      <li>Conexión con el entorno natural</li>
+                      <li>Trabajo en equipo</li>
+                    </ul>
+                  </div>
+                </div>
+
+                <div class="bg-rtGreenLight border-2 border-rtGreen text-rtGreen p-4 rounded-2xl flex items-center gap-3">
+                  <div class="text-2xl">🎁</div>
+                  <div class="text-left">
+                    <p class="font-black text-sm">+50 XP de Bienvenida</p>
+                    <p class="text-[10px] font-bold">¡Tu nivel inicial: Explorador!</p>
+                  </div>
+                </div>
+              </div>
+              <button onclick="finishStudentRegistration()" class="w-full bg-rtGreen text-white font-black py-4 rounded-2xl btn-3d shadow-[0_4px_0_#2b7326] text-sm">Entrar a mi Panel →</button>
+            </div>
+
+            <!-- STUDENT HOME SCREEN -->
+            <div id="student-home" class="hidden space-y-6">
+              <div class="bg-gradient-to-tr from-rtPink via-rtPink to-rtYellow text-white rounded-3xl p-5 shadow-lg relative overflow-hidden">
+                <div class="absolute -right-4 -bottom-4 text-8xl opacity-10">🐳</div>
+                <span class="text-[10px] font-black uppercase tracking-wider bg-white/20 px-2 py-1 rounded">Mi Nivel</span>
+                <h2 id="sh-welcome-name" class="text-2xl font-black mt-2">¡Hola, Valentina!</h2>
+                <p id="sh-level-name" class="text-xs font-bold opacity-90">Nivel 2 · Guardián Patagónico</p>
+                <div class="mt-4">
+                  <div class="flex justify-between text-xs font-bold mb-1">
+                    <span id="sh-xp-current">620 XP</span>
+                    <span id="sh-xp-next">1500 XP</span>
+                  </div>
+                  <div class="w-full h-2.5 bg-white/25 rounded-full overflow-hidden">
+                    <div id="sh-xp-bar" class="bg-white h-full transition-all duration-500" style="width: 41%"></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Recommended Missions horizontal scroll -->
+              <div class="space-y-3">
+                <h3 class="text-base font-black text-rtDark flex justify-between items-center">
+                  <span>Recomendados para tu perfil</span>
+                  <button onclick="changeStudentTab('misiones')" class="text-xs text-rtPink font-bold">Ver todo</button>
+                </h3>
+                <div id="sh-recommended-list" class="flex gap-4 overflow-x-auto no-scrollbar pb-2 -mx-4 px-4">
+                  <!-- Dynamic cards -->
+                </div>
+              </div>
+
+              <!-- New additions -->
+              <div class="space-y-3">
+                <h3 class="text-base font-black text-rtDark">Novedades</h3>
+                <div id="sh-new-list" class="space-y-3">
+                  <!-- Dynamic list -->
+                </div>
+              </div>
+
+              <!-- Progress towards certification -->
+              <div class="bg-white border-2 border-slate-900 rounded-3xl p-5 shadow-[4px_4px_0px_#1a1a2e] space-y-3">
+                <div class="flex justify-between items-center">
+                  <div>
+                    <h4 class="font-black text-sm text-rtDark">Próxima Certificación</h4>
+                    <p id="sh-cert-next" class="text-xs font-bold text-slate-500">Nivel 2 · Certificado de Competencia</p>
+                  </div>
+                  <div class="text-2xl">⭐</div>
+                </div>
+                <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                  <div id="sh-cert-bar" class="bg-rtBlue h-full" style="width: 50%"></div>
+                </div>
+                <p id="sh-cert-desc" class="text-[10px] font-bold text-slate-400">Progreso estimado basado en tus misiones tomadas y completadas.</p>
+              </div>
+            </div>
+
+            <!-- STUDENT TABLERO SCREEN -->
+            <div id="student-tablero" class="hidden space-y-4">
+              <div class="space-y-1">
+                <h2 class="text-xl font-black text-rtDark">Tablero de Desafíos</h2>
+                <p class="text-xs font-bold text-slate-500">Encontrá y postulá a misiones reales de tu comunidad</p>
+              </div>
+              
+              <!-- Filters -->
+              <div class="space-y-3 bg-slate-50 p-3 rounded-2xl border border-slate-200">
+                <div>
+                  <span class="text-[10px] font-black text-slate-400 uppercase tracking-wider block mb-1.5">Categoría</span>
+                  <div class="flex gap-1.5 overflow-x-auto no-scrollbar pb-1" id="tablero-cat-filters">
+                    <!-- Filters dynamically created -->
+                  </div>
+                </div>
+                <div>
+                  <span class="text-[10px] font-black text-slate-400 uppercase tracking-wider block mb-1.5">Estado</span>
+                  <div class="flex gap-1.5" id="tablero-status-filters">
+                    <button onclick="setTableroStatusFilter('Todos')" class="status-filter-btn px-3 py-1 rounded-full text-xs font-bold bg-rtDark text-white">Todos</button>
+                    <button onclick="setTableroStatusFilter('Abierta')" class="status-filter-btn px-3 py-1 rounded-full text-xs font-bold bg-white text-slate-600 border border-slate-200">Abiertas</button>
+                    <button onclick="setTableroStatusFilter('En curso')" class="status-filter-btn px-3 py-1 rounded-full text-xs font-bold bg-white text-slate-600 border border-slate-200">En curso</button>
+                    <button onclick="setTableroStatusFilter('Completada')" class="status-filter-btn px-3 py-1 rounded-full text-xs font-bold bg-white text-slate-600 border border-slate-200">Completadas</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- List of missions -->
+              <div id="tablero-missions-list" class="space-y-3">
+                <!-- Dynamic cards -->
+              </div>
+            </div>
+
+            <!-- STUDENT MISSION DETAIL SCREEN -->
+            <div id="student-mission-detail" class="hidden space-y-6">
+              <button onclick="changeStudentTab('misiones')" class="text-xs font-black text-slate-400 hover:text-rtPink flex items-center gap-1">
+                <i data-lucide="arrow-left" class="w-4 h-4"></i> Volver al Tablero
+              </button>
+
+              <div id="smd-card-content">
+                <!-- Injected via JS -->
+              </div>
+            </div>
+
+            <!-- STUDENT PROFILE & ACHIEVEMENTS SCREEN -->
+            <div id="student-profile" class="hidden space-y-6">
+              <!-- Student card header -->
+              <div class="bg-white border-2 border-slate-900 rounded-3xl p-5 shadow-[4px_4px_0px_#1a1a2e] flex items-center gap-4">
+                <div class="w-16 h-16 bg-rtPinkLight border-2 border-rtPink rounded-2xl flex items-center justify-center text-4xl" id="sp-avatar">
+                  🦊
+                </div>
+                <div class="flex-1">
+                  <h3 id="sp-name" class="text-xl font-black text-rtDark">Valentina López</h3>
+                  <p id="sp-grade" class="text-xs font-bold text-slate-400">4to año · E.E.S. N° 736</p>
+                  <div class="flex items-center gap-2 mt-1.5">
+                    <span id="sp-level" class="bg-rtPink text-white text-[10px] font-black px-2 py-0.5 rounded">Nivel 2</span>
+                    <span id="sp-xp" class="text-xs font-black text-rtPink">620 XP</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Quick Links -->
+              <div class="grid grid-cols-2 gap-3">
+                <button onclick="openTalentMap()" class="bg-rtTealLight border-2 border-rtTeal text-rtTeal p-4 rounded-2xl text-center btn-3d shadow-[0_4px_0_#0f8484] flex flex-col items-center">
+                  <span class="text-3xl mb-1">🗺️</span>
+                  <span class="text-xs font-black">Mapa de Talentos</span>
+                </button>
+                <button onclick="openCertificatesList()" class="bg-rtPurpleLight border-2 border-rtPurple text-rtPurple p-4 rounded-2xl text-center btn-3d shadow-[0_4px_0_#623475] flex flex-col items-center">
+                  <span class="text-3xl mb-1">🏅</span>
+                  <span class="text-xs font-black">Certificados</span>
+                </button>
+              </div>
+
+              <!-- Active & Completed Missions lists -->
+              <div class="space-y-4">
+                <h4 class="text-sm font-black text-rtDark uppercase tracking-wider">Mis Misiones Activas</h4>
+                <div id="sp-active-missions" class="space-y-2">
+                  <!-- list -->
+                </div>
+
+                <h4 class="text-sm font-black text-rtDark uppercase tracking-wider">Mis Misiones Completadas</h4>
+                <div id="sp-completed-missions" class="space-y-2">
+                  <!-- list -->
+                </div>
+              </div>
+            </div>
+
+            <!-- STUDENT CERTIFICATES SCREEN -->
+            <div id="student-certificates" class="hidden space-y-6">
+              <button onclick="changeStudentTab('perfil')" class="text-xs font-black text-slate-400 hover:text-rtPink flex items-center gap-1">
+                <i data-lucide="arrow-left" class="w-4 h-4"></i> Volver a Perfil
+              </button>
+
+              <div class="space-y-1">
+                <h2 class="text-xl font-black text-rtDark">Mis Certificados</h2>
+                <p class="text-xs font-bold text-slate-500">Acreditan tus horas de prácticas profesionalizantes oficiales.</p>
+              </div>
+
+              <div id="sc-certificates-container" class="space-y-4">
+                <!-- Rendered by JS -->
+              </div>
+            </div>
+
+            <!-- STUDENT MAP OF TALENTS (RADAR CHART) SCREEN -->
+            <div id="student-talent-map" class="hidden space-y-6">
+              <button onclick="changeStudentTab('perfil')" class="text-xs font-black text-slate-400 hover:text-rtPink flex items-center gap-1">
+                <i data-lucide="arrow-left" class="w-4 h-4"></i> Volver a Perfil
+              </button>
+
+              <div class="space-y-1">
+                <h2 class="text-xl font-black text-rtDark">Mapa de Talentos</h2>
+                <p class="text-xs font-bold text-slate-500">Un análisis de tus habilidades basado en la orientación vocacional.</p>
+              </div>
+
+              <!-- Radar Chart Canvas -->
+              <div class="bg-white border-2 border-slate-900 rounded-3xl p-4 shadow-[4px_4px_0px_#1a1a2e] flex items-center justify-center">
+                <div class="w-full max-w-[280px] h-[280px]">
+                  <canvas id="student-radar-chart"></canvas>
+                </div>
+              </div>
+
+              <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-3">
+                <h4 class="text-sm font-black text-rtDark uppercase">Recomendación Académica</h4>
+                <p class="text-xs font-bold text-slate-600 leading-relaxed">
+                  Dado tu perfil destacado en <span id="stm-profile-name" class="font-extrabold text-rtPink">Guardián Patagónico</span>, te recomendamos explorar las siguientes carreras universitarias en la región del Chubut:
+                </p>
+                <div id="stm-careers" class="flex flex-wrap gap-1.5">
+                  <!-- injected by JS -->
+                </div>
+              </div>
+            </div>
+
+            <!-- STUDENT MESSAGES SCREEN -->
+            <div id="student-messages" class="hidden space-y-4">
+              <div class="space-y-1">
+                <h2 class="text-xl font-black text-rtDark">Mensajes y Notificaciones</h2>
+                <p class="text-xs font-bold text-slate-500">Comunicaciones de tus docentes y empresas asignadas.</p>
+              </div>
+
+              <div id="student-messages-list" class="space-y-3">
+                <!-- dynamic messages -->
+              </div>
+            </div>
+
+          </div>
+
+          <!-- BOTTOM NAV BUTTONS FOR STUDENT -->
+          <nav id="student-bottom-nav" class="absolute bottom-0 left-0 right-0 h-16 bg-white border-t-2 border-slate-100 flex justify-around items-center px-2 z-40">
+            <button onclick="changeStudentTab('home')" id="nav-btn-home" class="flex flex-col items-center gap-0.5 text-rtPink">
+              <i data-lucide="home" class="w-5 h-5"></i>
+              <span class="text-[9px] font-black">Inicio</span>
+            </button>
+            <button onclick="changeStudentTab('misiones')" id="nav-btn-misiones" class="flex flex-col items-center gap-0.5 text-slate-400 hover:text-slate-600">
+              <i data-lucide="target" class="w-5 h-5"></i>
+              <span class="text-[9px] font-black">Misiones</span>
+            </button>
+            <button onclick="changeStudentTab('certificados')" id="nav-btn-certificados" class="flex flex-col items-center gap-0.5 text-slate-400 hover:text-slate-600">
+              <i data-lucide="award" class="w-5 h-5"></i>
+              <span class="text-[9px] font-black">Logros</span>
+            </button>
+            <button onclick="changeStudentTab('perfil')" id="nav-btn-perfil" class="flex flex-col items-center gap-0.5 text-slate-400 hover:text-slate-600">
+              <i data-lucide="user" class="w-5 h-5"></i>
+              <span class="text-[9px] font-black">Perfil</span>
+            </button>
+            <button onclick="changeStudentTab('mensajes')" id="nav-btn-mensajes" class="flex flex-col items-center gap-0.5 text-slate-400 hover:text-slate-600 relative">
+              <i data-lucide="mail" class="w-5 h-5"></i>
+              <span class="text-[9px] font-black">Mensajes</span>
+              <span id="messages-badge" class="hidden absolute top-0 right-2 w-2 h-2 bg-rtPink rounded-full"></span>
+            </button>
+          </nav>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ==================== COMPANY PORTAL (DESKTOP) ==================== -->
+    <div id="view-empresa" class="hidden min-h-screen bg-slate-50 flex">
+      <!-- Sidebar -->
+      <aside class="w-64 bg-rtDark text-white flex flex-col justify-between p-6">
+        <div class="space-y-8">
+          <div class="flex items-center gap-2 cursor-pointer" onclick="logout()">
+            <span class="text-2xl font-black tracking-tight">
+              <span class="text-white">Radar</span> <span class="text-rtPink">T</span>
+            </span>
+            <span class="text-[10px] font-bold bg-rtPink text-white px-2 py-0.5 rounded">Empresa</span>
+          </div>
+          
+          <div class="space-y-1.5">
+            <button onclick="changeCompanyTab('inicio')" id="c-nav-inicio" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold bg-white/10 text-white text-left transition-colors">
+              <i data-lucide="layout-dashboard" class="w-5 h-5"></i> Dashboard
+            </button>
+            <button onclick="changeCompanyTab('publicar')" id="c-nav-publicar" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-slate-400 hover:bg-white/5 hover:text-white text-left transition-colors">
+              <i data-lucide="plus-circle" class="w-5 h-5"></i> Publicar Desafío
+            </button>
+            <button onclick="changeCompanyTab('misiones')" id="c-nav-misiones" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-slate-400 hover:bg-white/5 hover:text-white text-left transition-colors">
+              <i data-lucide="list-todo" class="w-5 h-5"></i> Mis Desafíos
+            </button>
+            <button onclick="changeCompanyTab('postulantes')" id="c-nav-postulantes" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-slate-400 hover:bg-white/5 hover:text-white text-left transition-colors">
+              <i data-lucide="users" class="w-5 h-5"></i> Postulantes
+            </button>
+            <button onclick="changeCompanyTab('escala')" id="c-nav-escala" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-slate-400 hover:bg-white/5 hover:text-white text-left transition-colors">
+              <i data-lucide="map-pinned" class="w-5 h-5"></i> Escalabilidad
+            </button>
+          </div>
+        </div>
+
+        <div class="space-y-4">
+          <div class="bg-white/5 rounded-2xl p-4 border border-white/10">
+            <p class="text-xs text-slate-400 font-bold">EMPRESA CONECTADA</p>
+            <p id="c-sidebar-name" class="font-extrabold text-sm mt-1 text-white">Avistaje Patagonia SRL</p>
+          </div>
+          <button onclick="logout()" class="w-full bg-red-600/20 text-red-400 hover:bg-red-600/30 font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition-colors">
+            <i data-lucide="log-out" class="w-4 h-4"></i> Cerrar Sesión
+          </button>
+        </div>
+      </aside>
+
+      <!-- Main Content -->
+      <main class="flex-1 p-8 overflow-y-auto max-w-7xl mx-auto w-full">
+        
+        <!-- COMPANY TAB: INICIO -->
+        <div id="c-tab-inicio" class="space-y-6">
+          <div class="flex justify-between items-center">
+            <div>
+              <h1 class="text-3xl font-black text-rtDark">Bienvenido al Panel de Empresa</h1>
+              <p id="c-welcome-sub" class="text-sm text-slate-500 font-semibold">Gestioná tus desafíos cívico-educativos y encontrá talento local</p>
+            </div>
+            <button onclick="changeCompanyTab('publicar')" class="bg-rtPink text-white font-black px-5 py-3 rounded-2xl btn-3d shadow-[0_4px_0_#9a0050] text-sm">
+              + Publicar Nueva Misión
+            </button>
+          </div>
+
+          <!-- Stats Grid -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-white border-2 border-slate-900 rounded-3xl p-6 shadow-[4px_4px_0px_#1a1a2e]">
+              <span class="text-xs text-slate-400 font-black uppercase tracking-wider">Desafíos Publicados</span>
+              <p id="c-stat-published" class="text-4xl font-black text-rtDark mt-2">2</p>
+            </div>
+            <div class="bg-white border-2 border-slate-900 rounded-3xl p-6 shadow-[4px_4px_0px_#1a1a2e]">
+              <span class="text-xs text-slate-400 font-black uppercase tracking-wider">Postulantes Activos</span>
+              <p id="c-stat-applicants" class="text-4xl font-black text-rtBlue mt-2">1</p>
+            </div>
+            <div class="bg-white border-2 border-slate-900 rounded-3xl p-6 shadow-[4px_4px_0px_#1a1a2e]">
+              <span class="text-xs text-slate-400 font-black uppercase tracking-wider">Certificados Otorgados</span>
+              <p id="c-stat-certs" class="text-4xl font-black text-rtGreen mt-2">1</p>
+            </div>
+          </div>
+
+          <div class="bg-white border-2 border-slate-900 rounded-3xl p-6 shadow-[4px_4px_0px_#1a1a2e]">
+            <h3 class="text-lg font-black mb-4">Postulaciones Recientes</h3>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-sm border-collapse">
+                <thead>
+                  <tr class="border-b-2 border-slate-200">
+                    <th class="pb-3 font-black text-slate-400 uppercase">Alumno</th>
+                    <th class="pb-3 font-black text-slate-400 uppercase">Desafío</th>
+                    <th class="pb-3 font-black text-slate-400 uppercase">Perfil</th>
+                    <th class="pb-3 font-black text-slate-400 uppercase">Estado</th>
+                    <th class="pb-3 font-black text-slate-400 uppercase">Acción</th>
+                  </tr>
+                </thead>
+                <tbody id="c-recent-applicants-table">
+                  <!-- dynamic rows -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- COMPANY TAB: PUBLICAR -->
+        <div id="c-tab-publicar" class="hidden space-y-6">
+          <div>
+            <h1 class="text-3xl font-black text-rtDark">Crear Desafío</h1>
+            <p class="text-sm text-slate-500 font-semibold">Publicá una propuesta de práctica profesionalizante para los colegios de la zona</p>
+          </div>
+
+          <div class="bg-white border-2 border-slate-900 rounded-3xl p-8 shadow-[4px_4px_0px_#1a1a2e] max-w-3xl">
+            <!-- Step 1: Category Selection -->
+            <div id="c-publish-step-1" class="space-y-6">
+              <div>
+                <h3 class="text-lg font-black text-rtDark">Paso 1: Seleccioná la Categoría</h3>
+                <p class="text-xs text-slate-400 font-bold">Elegí la temática que mejor se adapte al problema que querés resolver.</p>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="c-categories-grid">
+                <!-- Dynamically generated category cards -->
+              </div>
+
+              <div class="flex justify-end pt-4">
+                <button onclick="nextCompanyPublishStep()" class="bg-rtPink text-white font-black px-6 py-3 rounded-xl btn-3d shadow-[0_4px_0_#9a0050]" id="btn-next-step" disabled>
+                  Continuar →
+                </button>
+              </div>
+            </div>
+
+            <!-- Step 2: Form Details -->
+            <div id="c-publish-step-2" class="hidden space-y-6">
+              <div class="flex items-center gap-3">
+                <button onclick="prevCompanyPublishStep()" class="text-slate-400 font-bold hover:text-slate-600">← Volver</button>
+                <h3 class="text-lg font-black text-rtDark">Paso 2: Completá los Detalles del Desafío</h3>
+              </div>
+
+              <div class="space-y-4">
+                <div>
+                  <label class="block text-sm font-black text-slate-700 mb-1">Título del Desafío</label>
+                  <input type="text" id="c-new-title" placeholder="Ej: Redacción de contenidos para portal de turismo" class="w-full border-2 border-slate-200 rounded-2xl px-4 py-3 font-semibold focus:outline-none input-focus">
+                </div>
+                <div>
+                  <label class="block text-sm font-black text-slate-700 mb-1">Descripción del Problema</label>
+                  <textarea id="c-new-desc" rows="4" placeholder="Describí con detalle el problema que enfrenta tu negocio y qué esperás que realice el estudiante..." class="w-full border-2 border-slate-200 rounded-2xl px-4 py-3 font-semibold focus:outline-none input-focus"></textarea>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                  <div>
+                    <label class="block text-sm font-black text-slate-700 mb-1">Año Escolar Recomendado</label>
+                    <select id="c-new-grade" class="w-full border-2 border-slate-200 rounded-2xl px-4 py-3 font-semibold focus:outline-none input-focus">
+                      <option value="3° Año">3er Año</option>
+                      <option value="4° Año" selected>4to Año</option>
+                      <option value="5° Año">5to Año</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="block text-sm font-black text-slate-700 mb-1">Cupos Disponibles</label>
+                    <input type="number" id="c-new-slots" min="1" max="10" value="2" class="w-full border-2 border-slate-200 rounded-2xl px-4 py-3 font-semibold focus:outline-none input-focus">
+                  </div>
+                </div>
+                <div>
+                  <label class="block text-sm font-black text-slate-700 mb-1">Criterios de Evaluación (Opcional)</label>
+                  <textarea id="c-new-criteria" rows="2" placeholder="Ej: Responsabilidad, puntualidad, entregas claras en documentos..." class="w-full border-2 border-slate-200 rounded-2xl px-4 py-3 font-semibold focus:outline-none input-focus"></textarea>
+                </div>
+              </div>
+
+              <div class="flex justify-end pt-4">
+                <button onclick="publishMission()" class="bg-rtGreen text-white font-black px-8 py-4 rounded-xl btn-3d shadow-[0_4px_0_#2b7326]">
+                  Publicar Desafío ✅
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- COMPANY TAB: MIS MISIONES -->
+        <div id="c-tab-misiones" class="hidden space-y-6">
+          <div>
+            <h1 class="text-3xl font-black text-rtDark">Mis Desafíos Publicados</h1>
+            <p class="text-sm text-slate-500 font-semibold">Monitoreá las misiones que tu empresa subió al sistema</p>
+          </div>
+
+          <div class="bg-white border-2 border-slate-900 rounded-3xl p-6 shadow-[4px_4px_0px_#1a1a2e]">
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-sm border-collapse">
+                <thead>
+                  <tr class="border-b-2 border-slate-200">
+                    <th class="pb-3 font-black text-slate-400 uppercase">Título</th>
+                    <th class="pb-3 font-black text-slate-400 uppercase">Categoría</th>
+                    <th class="pb-3 font-black text-slate-400 uppercase">Año</th>
+                    <th class="pb-3 font-black text-slate-400 uppercase">Cupos</th>
+                    <th class="pb-3 font-black text-slate-400 uppercase">Estado</th>
+                  </tr>
+                </thead>
+                <tbody id="c-my-missions-table">
+                  <!-- dynamic rows -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- COMPANY TAB: POSTULANTES -->
+        <div id="c-tab-postulantes" class="hidden space-y-6">
+          <div>
+            <h1 class="text-3xl font-black text-rtDark">Postulantes a Prácticas</h1>
+            <p class="text-sm text-slate-500 font-semibold">Alumnos que están resolviendo tus desafíos. Evaluá su desempeño para certificar sus horas.</p>
+          </div>
+
+          <div class="bg-white border-2 border-slate-900 rounded-3xl p-6 shadow-[4px_4px_0px_#1a1a2e]">
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-sm border-collapse">
+                <thead>
+                  <tr class="border-b-2 border-slate-200">
+                    <th class="pb-3 font-black text-slate-400 uppercase">Estudiante</th>
+                    <th class="pb-3 font-black text-slate-400 uppercase">Curso</th>
+                    <th class="pb-3 font-black text-slate-400 uppercase">Misión</th>
+                    <th class="pb-3 font-black text-slate-400 uppercase">Perfil Vocacional</th>
+                    <th class="pb-3 font-black text-slate-400 uppercase">Estado</th>
+                    <th class="pb-3 font-black text-slate-400 uppercase">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="c-postulantes-table">
+                  <!-- dynamic rows -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </main>
+    </div>
+
+
+    <!-- ==================== DOCENTE PORTAL (DESKTOP) ==================== -->
+    <div id="view-docente" class="hidden min-h-screen bg-slate-50 flex">
+      <!-- Sidebar -->
+      <aside class="w-64 bg-rtDark text-white flex flex-col justify-between p-6 font-bold">
+        <div class="space-y-8">
+          <div class="flex items-center gap-2 cursor-pointer" onclick="logout()">
+            <span class="text-2xl font-black tracking-tight">
+              <span class="text-white">Radar</span> <span class="text-rtPink">T</span>
+            </span>
+            <span class="text-[10px] font-bold bg-rtPurple text-white px-2 py-0.5 rounded">Docente</span>
+          </div>
+
+          <div class="space-y-1">
+            <span class="text-[10px] font-black text-slate-500 uppercase tracking-wider block mb-2 px-4">CURSOS ASIGNADOS</span>
+            <div class="space-y-1" id="docente-class-selector-list">
+              <!-- JS-populated classes -->
+            </div>
+          </div>
+          
+          <div class="space-y-1.5 pt-4 border-t border-white/10">
+            <button onclick="changeDocenteTab('alumnos')" id="d-nav-alumnos" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold bg-white/10 text-white text-left transition-colors">
+              <i data-lucide="users" class="w-5 h-5"></i> Alumnos de Clase
+            </button>
+            <button onclick="changeDocenteTab('intereses')" id="d-nav-intereses" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-slate-400 hover:bg-white/5 hover:text-white text-left transition-colors">
+              <i data-lucide="bar-chart-3" class="w-5 h-5"></i> Intereses del Aula
+            </button>
+            <button onclick="changeDocenteTab('cronograma')" id="d-nav-cronograma" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-slate-400 hover:bg-white/5 hover:text-white text-left transition-colors">
+              <i data-lucide="calendar" class="w-5 h-5"></i> Cronograma de Prácticas
+            </button>
+            <button onclick="changeDocenteTab('validaciones')" id="d-nav-validaciones" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-slate-400 hover:bg-white/5 hover:text-white text-left transition-colors">
+              <i data-lucide="check-square" class="w-5 h-5"></i> Validaciones
+            </button>
+            <button onclick="changeDocenteTab('escala')" id="d-nav-escala" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-slate-400 hover:bg-white/5 hover:text-white text-left transition-colors">
+              <i data-lucide="map-pinned" class="w-5 h-5"></i> Escalabilidad
+            </button>
+          </div>
+        </div>
+
+        <div class="space-y-4">
+          <div class="bg-white/5 rounded-2xl p-4 border border-white/10">
+            <p class="text-xs text-slate-400 font-bold">TUTOR/A</p>
+            <p id="d-sidebar-name" class="font-extrabold text-sm mt-1 text-white">Prof. Laura Martínez</p>
+            <p class="text-[10px] text-slate-400 font-bold" id="d-sidebar-escuela">E.E.S. N° 736</p>
+          </div>
+          <button onclick="logout()" class="w-full bg-red-600/20 text-red-400 hover:bg-red-600/30 font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition-colors">
+            <i data-lucide="log-out" class="w-4 h-4"></i> Cerrar Sesión
+          </button>
+        </div>
+      </aside>
+
+      <!-- Main Content -->
+      <main class="flex-grow p-8 overflow-y-auto max-w-7xl mx-auto w-full flex flex-col gap-6">
+        
+        <!-- DOCENTE TAB: ALUMNOS DE LA CLASE -->
+        <div id="d-tab-alumnos" class="space-y-6 w-full">
+          <div class="flex justify-between items-center">
+            <div>
+              <h1 class="text-3xl font-black text-rtDark">Seguimiento de Alumnos</h1>
+              <p class="text-sm text-slate-500 font-semibold">Monitoreá y evaluá el progreso de las prácticas obligatorias de tu división.</p>
+            </div>
+            <div class="bg-rtPurple/10 border-2 border-rtPurple text-rtPurple px-5 py-2.5 rounded-2xl font-black" id="d-current-class-badge">
+              Curso: 4°B
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Table of Students -->
+            <div class="lg:col-span-2 bg-white border-2 border-slate-900 rounded-3xl p-6 shadow-[4px_4px_0px_#1a1a2e]">
+              <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm border-collapse">
+                  <thead>
+                    <tr class="border-b-2 border-slate-200">
+                      <th class="pb-3 font-black text-slate-400 uppercase">Alumno</th>
+                      <th class="pb-3 font-black text-slate-400 uppercase">Perfil Vocacional</th>
+                      <th class="pb-3 font-black text-slate-400 uppercase">Misión Activa</th>
+                      <th class="pb-3 font-black text-slate-400 uppercase">Estado</th>
+                      <th class="pb-3 font-black text-slate-400 uppercase">Acción</th>
+                    </tr>
+                  </thead>
+                  <tbody id="d-students-table">
+                    <!-- dynamic rows -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Student Side Detail Sheet / Panel -->
+            <div id="d-student-sheet" class="bg-white border-2 border-slate-900 rounded-3xl p-6 shadow-[4px_4px_0px_#1a1a2e] space-y-6">
+              <div class="text-center py-4 border-b border-slate-100">
+                <span class="text-5xl">🎒</span>
+                <h3 id="d-sheet-name" class="text-xl font-black text-rtDark mt-2">Seleccioná un alumno</h3>
+                <p id="d-sheet-email" class="text-xs font-bold text-slate-400">Hacé clic en "Ver" en la tabla para auditar sus detalles.</p>
+              </div>
+
+              <div id="d-sheet-content" class="hidden space-y-4">
+                <div class="grid grid-cols-2 gap-3">
+                  <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 text-center">
+                    <span class="text-xs text-slate-400 font-bold">Nivel</span>
+                    <p id="d-sheet-level" class="text-lg font-black text-rtPink">1</p>
+                  </div>
+                  <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 text-center">
+                    <span class="text-xs text-slate-400 font-bold">Puntos XP</span>
+                    <p id="d-sheet-xp" class="text-lg font-black text-rtYellow">120</p>
+                  </div>
+                </div>
+
+                <div>
+                  <span class="text-xs text-slate-400 font-bold block mb-1">Perfil Vocacional</span>
+                  <div class="bg-rtGreenLight border-2 border-rtGreen rounded-xl p-3">
+                    <p id="d-sheet-profile" class="font-black text-rtGreen text-xs">🐳 Guardián Patagónico</p>
+                  </div>
+                </div>
+
+                <!-- Radar chart container inside panel -->
+                <div class="flex justify-center p-2 bg-slate-50 rounded-xl border border-slate-100">
+                  <div class="w-48 h-48">
+                    <canvas id="d-student-radar"></canvas>
+                  </div>
+                </div>
+
+                <div>
+                  <label class="block text-xs font-bold text-slate-500 mb-1">Notas Pedagógicas</label>
+                  <textarea id="d-sheet-notes" rows="3" oninput="saveDocenteNotes()" placeholder="Escribí aquí observaciones sobre el desempeño del alumno..." class="w-full text-xs border-2 border-slate-200 rounded-xl px-3 py-2 font-bold focus:outline-none input-focus"></textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- DOCENTE TAB: INTERESES DEL AULA -->
+        <div id="d-tab-intereses" class="hidden space-y-6">
+          <div>
+            <h1 class="text-3xl font-black text-rtDark">Intereses Consolidados</h1>
+            <p class="text-sm text-slate-500 font-semibold">Distribución de perfiles y fortalezas vocacionales de los estudiantes de la clase.</p>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <!-- Chart Card -->
+            <div class="lg:col-span-6 bg-white border-2 border-slate-900 rounded-3xl p-6 shadow-[4px_4px_0px_#1a1a2e]">
+              <h3 class="font-black text-lg mb-4">Perfiles Vocacionales</h3>
+              <div class="h-[300px] flex items-center justify-center">
+                <canvas id="d-interests-bar-chart"></canvas>
+              </div>
+            </div>
+
+            <!-- Insights Card -->
+            <div class="lg:col-span-6 space-y-6">
+              <div class="bg-rtPurpleLight border-2 border-rtPurple rounded-3xl p-6 space-y-4">
+                <div class="flex items-center gap-2">
+                  <span class="text-2xl">💡</span>
+                  <h4 class="text-xl font-black text-rtPurple">Recomendación Pedagógica</h4>
+                </div>
+                <p class="text-sm font-bold text-slate-700 leading-relaxed">
+                  Tus alumnos muestran un marcado interés hacia los perfiles de <span class="text-rtPink font-black">Guardián Patagónico</span> y <span class="text-rtBlue font-black">Creador Digital</span>. Esto indica predisposición por tareas al aire libre y comunicación digital.
+                </p>
+                <div class="bg-white border-2 border-rtPurple/20 rounded-2xl p-4 space-y-2 text-xs text-slate-600 font-bold">
+                  <p class="flex gap-2"><i data-lucide="check" class="w-4 h-4 text-rtPurple shrink-0"></i> Articular la materia Biología con la campaña GPS del CONICET.</p>
+                  <p class="flex gap-2"><i data-lucide="check" class="w-4 h-4 text-rtPurple shrink-0"></i> Fomentar que los Creadores colaboren en el diseño de guías del Municipio.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- DOCENTE TAB: CRONOGRAMA DE PRACTICAS -->
+        <div id="d-tab-cronograma" class="hidden space-y-6">
+          <div class="bg-red-50 border-2 border-red-200 rounded-3xl p-4 flex items-center gap-4 text-red-800">
+            <div class="text-3xl">⚠️</div>
+            <div>
+              <p class="font-black text-sm">Alerta de Plazos</p>
+              <p class="text-xs font-bold text-red-700">1 práctica requiere atención inmediata: Emilia Rodríguez tiene solo 3 días restantes para la entrega del informe final.</p>
+            </div>
+          </div>
+
+          <div class="bg-white border-2 border-slate-900 rounded-3xl p-6 shadow-[4px_4px_0px_#1a1a2e]">
+            <h3 class="text-lg font-black mb-4">Cronograma de Entrega e Hitos</h3>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-sm border-collapse">
+                <thead>
+                  <tr class="border-b-2 border-slate-200">
+                    <th class="pb-3 font-black text-slate-400 uppercase">Alumno</th>
+                    <th class="pb-3 font-black text-slate-400 uppercase">Misión</th>
+                    <th class="pb-3 font-black text-slate-400 uppercase">Fecha Inicio</th>
+                    <th class="pb-3 font-black text-slate-400 uppercase">Plazo Final</th>
+                    <th class="pb-3 font-black text-slate-400 uppercase">Días Restantes</th>
+                    <th class="pb-3 font-black text-slate-400 uppercase">Estado</th>
+                  </tr>
+                </thead>
+                <tbody id="d-cronograma-table">
+                  <!-- dynamic rows -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- DOCENTE TAB: VALIDACIONES PENDIENTES -->
+        <div id="d-tab-validaciones" class="hidden space-y-6">
+          <div>
+            <h1 class="text-3xl font-black text-rtDark">Validaciones Pedagógicas</h1>
+            <p class="text-sm text-slate-500 font-semibold">Como tutor académico, firmá las prácticas completadas para que el sistema otorgue los certificados oficiales correspondientes.</p>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="d-validaciones-container">
+            <!-- dynamic cards -->
+          </div>
+        </div>
+
+      </main>
+    </div>
+
+  </div>
+
+  <!-- CERTIFICATE DETAILED MODAL VIEWER -->
+  <div id="cert-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+    <div class="bg-white border-4 border-slate-900 rounded-[32px] p-8 max-w-2xl w-full shadow-2xl relative space-y-6 slide-up">
+      <button onclick="closeCertModal()" class="absolute top-6 right-6 text-slate-400 hover:text-slate-600 font-black">
+        <i data-lucide="x" class="w-6 h-6"></i>
+      </button>
+
+      <!-- Diploma Frame design -->
+      <div class="border-8 border-double border-slate-900 p-8 text-center space-y-6 relative overflow-hidden" style="background-color: #fcfbf7;">
+        <!-- Watermark -->
+        <div class="absolute inset-0 flex items-center justify-center opacity-[0.03] select-none pointer-events-none">
+          <span class="text-9xl font-black tracking-widest text-slate-900">RADAR T</span>
+        </div>
+
+        <div class="space-y-2 z-10 relative">
+          <p class="text-xs font-black tracking-[0.3em] text-[#1B96D5] uppercase">Ministerio de Educación, Ciencia y Tecnología</p>
+          <p class="text-xs font-extrabold text-slate-500">Provincia del Chubut · Argentina</p>
+        </div>
+
+        <h3 class="text-2xl font-black text-slate-900 z-10 relative tracking-wide uppercase" id="cert-modal-level-name">
+          Certificado de Participación
+        </h3>
+
+        <div class="py-2 space-y-2 z-10 relative">
+          <p class="text-sm italic font-serif text-slate-600">Se otorga el presente documento a</p>
+          <p class="text-2xl font-black text-rtPink border-b-2 border-slate-900/10 pb-2 inline-block px-8" id="cert-modal-student-name">
+            Valentina López
+          </p>
+        </div>
+
+        <p class="text-xs text-slate-600 leading-relaxed max-w-md mx-auto font-medium z-10 relative">
+          Por haber cumplido satisfactoriamente con las actividades y objetivos pedagógicos establecidos en el marco de la Práctica Profesionalizante denominada <strong class="text-slate-900" id="cert-modal-mission">"Asistente de registro GPS de avistajes de ballena sei"</strong>, realizada en la organización asociada <strong class="text-slate-900" id="cert-modal-company">CONICET Patagonia</strong>.
+        </p>
+
+        <!-- Signatures and seal -->
+        <div class="grid grid-cols-2 gap-8 pt-8 z-10 relative text-[10px] font-bold text-slate-500">
+          <div class="flex flex-col items-center">
+            <div class="w-32 border-t border-slate-400 pt-1.5 mt-4">
+              <p class="text-slate-900">Prof. Laura Martínez</p>
+              <p>Tutor Pedagógico</p>
+              <p>E.E.S. N° 736</p>
+            </div>
+          </div>
+          <div class="flex flex-col items-center">
+            <div class="w-32 border-t border-slate-400 pt-1.5 mt-4">
+              <p class="text-slate-900" id="cert-modal-company-signer">Representante Legal</p>
+              <p>Organización Asociada</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4 text-[9px] text-slate-400">
+          <span>Código de Registro: RT-2026-98741A-CH</span>
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-3">
+        <button onclick="window.print()" class="bg-rtDark text-white font-black px-6 py-3 rounded-xl btn-3d shadow-[0_4px_0_#000] text-sm">
+          🖨️ Imprimir / Guardar PDF
+        </button>
+        <button onclick="closeCertModal()" class="bg-slate-200 text-slate-700 font-black px-6 py-3 rounded-xl btn-3d shadow-[0_4px_0_#94a3b8] text-sm">
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- EVALUATION MODAL -->
+  <div id="evaluate-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+    <div class="bg-white border-4 border-slate-900 rounded-[32px] p-6 max-w-md w-full shadow-2xl space-y-4">
+      <div class="flex justify-between items-center">
+        <h3 class="text-xl font-black text-rtDark">Evaluar Estudiante</h3>
+        <button onclick="closeEvaluateModal()" class="text-slate-400 hover:text-slate-600">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="space-y-4">
+        <div>
+          <label class="block text-xs font-black text-slate-500 mb-1">Estudiante</label>
+          <p id="eval-student-name" class="font-extrabold text-sm text-slate-800">Valentina López</p>
+        </div>
+        <div>
+          <label class="block text-xs font-black text-slate-500 mb-1">Misión</label>
+          <p id="eval-mission-title" class="font-bold text-xs text-slate-600">Asistente de registro GPS...</p>
+        </div>
+
+        <div>
+          <label class="block text-xs font-black text-slate-500 mb-1">Calificación (Estrellas)</label>
+          <div class="flex gap-2 text-2xl" id="eval-stars-container">
+            <span onclick="setEvalRating(1)" class="cursor-pointer text-slate-300 hover:text-rtYellow">★</span>
+            <span onclick="setEvalRating(2)" class="cursor-pointer text-slate-300 hover:text-rtYellow">★</span>
+            <span onclick="setEvalRating(3)" class="cursor-pointer text-slate-300 hover:text-rtYellow">★</span>
+            <span onclick="setEvalRating(4)" class="cursor-pointer text-slate-300 hover:text-rtYellow">★</span>
+            <span onclick="setEvalRating(5)" class="cursor-pointer text-slate-300 hover:text-rtYellow">★</span>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-black text-slate-500 mb-1">Comentarios y Feedback</label>
+          <textarea id="eval-feedback" rows="3" placeholder="Escribí qué tal se desempeñó..." class="w-full text-xs border-2 border-slate-200 rounded-xl px-3 py-2 font-bold focus:outline-none input-focus"></textarea>
+        </div>
+
+        <label class="flex items-start gap-2.5 cursor-pointer">
+          <input type="checkbox" id="eval-approve-level2" checked class="mt-0.5 w-4 h-4 rounded border-slate-200">
+          <span class="text-[11px] font-bold text-slate-600">Aprobar emisión de Certificado de Competencia (Nivel 2)</span>
+        </label>
+      </div>
+
+      <div class="flex justify-end gap-2 pt-2">
+        <button onclick="closeEvaluateModal()" class="bg-slate-100 hover:bg-slate-200 font-bold px-4 py-2.5 rounded-xl text-sm">Cancelar</button>
+        <button onclick="submitEvaluation()" class="bg-rtGreen text-white font-black px-5 py-2.5 rounded-xl btn-3d shadow-[0_3px_0_#2b7326] text-sm">Confirmar Evaluación</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TEACHER VALIDATION MODAL -->
+  <div id="validate-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+    <div class="bg-white border-4 border-slate-900 rounded-[32px] p-6 max-w-md w-full shadow-2xl space-y-4">
+      <div class="flex justify-between items-center">
+        <h3 class="text-xl font-black text-rtDark">Validación Pedagógica</h3>
+        <button onclick="closeValidateModal()" class="text-slate-400 hover:text-slate-600">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="space-y-4">
+        <div>
+          <label class="block text-xs font-black text-slate-500 mb-1">Alumno</label>
+          <p id="val-student-name" class="font-extrabold text-sm text-slate-800">-</p>
+        </div>
+        <div>
+          <label class="block text-xs font-black text-slate-500 mb-1">Misión</label>
+          <p id="val-mission-title" class="font-bold text-xs text-slate-600">-</p>
+        </div>
+
+        <div class="space-y-2 pt-2 border-t border-slate-100">
+          <label class="flex items-start gap-2.5 cursor-pointer">
+            <input type="checkbox" id="val-check-1" checked class="mt-0.5 w-4 h-4 rounded border-slate-200">
+            <span class="text-[11px] font-bold text-slate-600">El alumno cumplió con los objetivos pedagógicos acordados.</span>
+          </label>
+          <label class="flex items-start gap-2.5 cursor-pointer">
+            <input type="checkbox" id="val-check-2" checked class="mt-0.5 w-4 h-4 rounded border-slate-200">
+            <span class="text-[11px] font-bold text-slate-600">Se cumplió la carga horaria estipulada para la práctica.</span>
+          </label>
+          <label class="flex items-start gap-2.5 cursor-pointer">
+            <input type="checkbox" id="val-check-3" checked class="mt-0.5 w-4 h-4 rounded border-slate-200">
+            <span class="text-[11px] font-bold text-slate-600">Aprobar la emisión del Certificado de Participación (Nivel 1).</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-2 pt-2">
+        <button onclick="closeValidateModal()" class="bg-slate-100 hover:bg-slate-200 font-bold px-4 py-2.5 rounded-xl text-sm">Cancelar</button>
+        <button onclick="submitTeacherValidation()" class="bg-rtPurple text-white font-black px-5 py-2.5 rounded-xl btn-3d shadow-[0_3px_0_#623475] text-sm">Firmar y Validar ✍️</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT LOGIC -->
+  <script>
+    // ----------------------------------------------------
+    // CONSTANTS & MOCK DATA
+    // ----------------------------------------------------
+    const RADAR_STATE_KEY = "radar_t_state_v2";
+
+    const DEMO_USERS = [
+      {
+        email: "valentina@ees736.edu.ar",
+        password: "radar123",
+        rol: "estudiante",
+        nombre: "Valentina López",
+        anio: "4to año",
+        curso: "4°B",
+        docente: "Prof. Laura Martínez",
+        nivel: 2,
+        xp: 620,
+        perfil: "Guardián Patagónico",
+        misionesEnCurso: [4],
+        misionesCompletadas: [1],
+        certificados: { nivel1: "desbloqueado", nivel2: "en-progreso", nivel3: "bloqueado" },
+        fortalezas: ["Conexión con el entorno", "Trabajo en equipo", "Pensamiento científico"],
+        intereses: ["Naturaleza", "Biología", "Turismo ecológico"],
+        respuestasQuiz: [2, 1, 2, 2, 3],
+        notasDocente: "Valentina muestra un excelente desempeño en su práctica con el CONICET. Está muy entusiasmada con la georreferenciación."
+      },
+      {
+        email: "lucas@ees736.edu.ar",
+        password: "radar123",
+        rol: "estudiante",
+        nombre: "Lucas Fernández",
+        anio: "5to año",
+        curso: "5°A",
+        docente: "Prof. Laura Martínez",
+        nivel: 1,
+        xp: 105,
+        perfil: "Creador Digital",
+        misionesEnCurso: [2],
+        misionesCompletadas: [],
+        certificados: { nivel1: "en-progreso", nivel2: "bloqueado", nivel3: "bloqueado" },
+        fortalezas: ["Creatividad", "Comunicación", "Tecnología"],
+        intereses: ["Redes Sociales", "Diseño", "Marketing"],
+        respuestasQuiz: [0, 0, 3, 1, 2],
+        notasDocente: "Lucas necesita apoyo para terminar su plan de contenidos, pero es muy creativo."
+      },
+      {
+        email: "sofia@ees736.edu.ar",
+        password: "radar123",
+        rol: "estudiante",
+        nombre: "Sofía Reyes",
+        anio: "3er año",
+        curso: "3°C",
+        docente: "Prof. Diego García",
+        nivel: 1,
+        xp: 30,
+        perfil: "Anfitrión Local",
+        misionesEnCurso: [],
+        misionesCompletadas: [],
+        certificados: { nivel1: "bloqueado", nivel2: "bloqueado", nivel3: "bloqueado" },
+        fortalezas: ["Atención al visitante", "Comunicación", "Empatía"],
+        intereses: ["Turismo", "Idiomas", "Atención"],
+        respuestasQuiz: [3, 2, 4, 4, 2],
+        notasDocente: ""
+      },
+      {
+        email: "emilia@ees736.edu.ar",
+        password: "radar123",
+        rol: "estudiante",
+        nombre: "Emilia Rodríguez",
+        anio: "4to año",
+        curso: "4°B",
+        docente: "Prof. Laura Martínez",
+        nivel: 1,
+        xp: 320,
+        perfil: "Anfitriona Local",
+        misionesEnCurso: [3],
+        misionesCompletadas: [],
+        certificados: { nivel1: "en-progreso", nivel2: "bloqueado", nivel3: "bloqueado" },
+        fortalezas: ["Atención", "Comunicación", "Resolución de problemas"],
+        intereses: ["Gestión", "Turismo", "Administración"],
+        respuestasQuiz: [3, 2, 4, 4, 2],
+        notasDocente: "Atención: La práctica vence pronto. Estar atento al reporte de digitalización."
+      },
+      {
+        email: "mateo@ees736.edu.ar",
+        password: "radar123",
+        rol: "estudiante",
+        nombre: "Mateo González",
+        anio: "4to año",
+        curso: "4°B",
+        docente: "Prof. Laura Martínez",
+        nivel: 1,
+        xp: 0,
+        perfil: "Analista de Datos",
+        misionesEnCurso: [],
+        misionesCompletadas: [],
+        certificados: { nivel1: "bloqueado", nivel2: "bloqueado", nivel3: "bloqueado" },
+        fortalezas: ["Análisis lógico", "Organización", "Precisión"],
+        intereses: ["Matemáticas", "Sistemas", "Finanzas"],
+        respuestasQuiz: [1, 4, 1, 0, 1],
+        notasDocente: "Pendiente de elegir misión inicial."
+      },
+      {
+        email: "camila@ees736.edu.ar",
+        password: "radar123",
+        rol: "estudiante",
+        nombre: "Camila Torres",
+        anio: "4to año",
+        curso: "4°B",
+        docente: "Prof. Laura Martínez",
+        nivel: 1,
+        xp: 75,
+        perfil: "Creador Digital",
+        misionesEnCurso: [6],
+        misionesCompletadas: [],
+        certificados: { nivel1: "en-progreso", nivel2: "bloqueado", nivel3: "bloqueado" },
+        fortalezas: ["Creatividad", "Diseño", "Innovación"],
+        intereses: ["Redes", "Diseño de Guías", "Fotografía"],
+        respuestasQuiz: [0, 0, 3, 5, 0],
+        notasDocente: "Avanzando en la redacción de contenidos."
+      },
+      {
+        email: "pilar@ees736.edu.ar",
+        password: "radar123",
+        rol: "estudiante",
+        nombre: "Pilar Méndez",
+        anio: "5to año",
+        curso: "5°A",
+        docente: "Prof. Laura Martínez",
+        nivel: 1,
+        xp: 450,
+        perfil: "Organizadora Maestra",
+        misionesEnCurso: [5],
+        misionesCompletadas: [],
+        certificados: { nivel1: "en-progreso", nivel2: "bloqueado", nivel3: "bloqueado" },
+        fortalezas: ["Planificación", "Coordinación", "Logística"],
+        intereses: ["Administración", "Eventos", "Sistemas de Reservas"],
+        respuestasQuiz: [4, 3, 0, 3, 4],
+        notasDocente: "Trabajando en el sistema de reservas."
+      },
+      {
+        email: "franco@ees736.edu.ar",
+        password: "radar123",
+        rol: "estudiante",
+        nombre: "Franco Ibáñez",
+        anio: "5to año",
+        curso: "5°A",
+        docente: "Prof. Laura Martínez",
+        nivel: 2,
+        xp: 800,
+        perfil: "Guardián Patagónico",
+        misionesEnCurso: [],
+        misionesCompletadas: [4],
+        certificados: { nivel1: "desbloqueado", nivel2: "desbloqueado", nivel3: "bloqueado" },
+        fortalezas: ["Ciencia", "Trabajo de Campo", "Ecología"],
+        intereses: ["Naturaleza", "Biología", "Georreferenciación"],
+        respuestasQuiz: [2, 1, 2, 2, 3],
+        notasDocente: "Excelente participación en la campaña de avistajes."
+      },
+      // Companies
+      {
+        email: "empresa@avistajepatagonia.com",
+        password: "radar123",
+        rol: "empresa",
+        nombre: "Avistaje Patagonia SRL",
+        contacto: "María González"
+      },
+      {
+        email: "empresa@hotelcostero.com",
+        password: "radar123",
+        rol: "empresa",
+        nombre: "Hotel Costero Rada Tilly",
+        contacto: "Roberto Díaz"
+      },
+      // Teachers
+      {
+        email: "docente@ees736.edu.ar",
+        password: "radar123",
+        rol: "docente",
+        nombre: "Prof. Laura Martínez",
+        materia: "Economía y Administración",
+        cursos: ["4°B", "5°A"],
+        escuela: "E.E.S. N° 736 · Rada Tilly"
+      },
+      {
+        email: "docente2@ees736.edu.ar",
+        password: "radar123",
+        rol: "docente",
+        nombre: "Prof. Diego García",
+        materia: "Ciencias Naturales",
+        cursos: ["3°C", "3°D"],
+        escuela: "E.E.S. N° 736 · Rada Tilly"
+      }
+    ];
+
+    const MISIONES_INICIALES = [
+      {
+        id: 1,
+        companyName: "Avistaje Patagonia SRL",
+        title: "Guía digital multilingüe de avistaje de ballena sei",
+        category: "Atención al Turista",
+        categoryIcon: "map",
+        gradeLevel: "4° Año",
+        slots: 2,
+        xpReward: 200,
+        status: "Abierta",
+        createdAt: "Hace 2 días",
+        description: "Desarrollo de una guía digital interactiva para turistas en español, inglés y portugués, enfocada en la observación responsable de la ballena sei en las costas de Rada Tilly. La guía debe incluir fichas técnicas de la especie, mapa de avistajes y recomendaciones ambientales."
+      },
+      {
+        id: 2,
+        companyName: "Hotel Costero Rada Tilly",
+        title: "Estrategia de redes sociales para temporada alta",
+        category: "Marketing Digital",
+        categoryIcon: "megaphone",
+        gradeLevel: "5° Año",
+        slots: 1,
+        xpReward: 220,
+        status: "Abierta",
+        createdAt: "Hace 3 días",
+        description: "Planificación y diseño de contenidos para Instagram y TikTok con el objetivo de posicionar a Rada Tilly como destino turístico sustentable y promocionar los servicios del hotel durante la temporada estival."
+      },
+      {
+        id: 3,
+        companyName: "Municipio Rada Tilly",
+        title: "Digitalización de registros de visitantes del parque",
+        category: "Gestión de Datos",
+        categoryIcon: "database",
+        gradeLevel: "4° Año",
+        slots: 2,
+        xpReward: 180,
+        status: "En curso",
+        createdAt: "Hace 1 semana",
+        description: "Sistematización de planillas físicas y digitalización de datos históricos de visitantes de la Reserva Natural Punta Marqués, generando un tablero de control básico en Excel o Google Sheets para facilitar la toma de decisiones municipales."
+      },
+      {
+        id: 4,
+        companyName: "CONICET Patagonia",
+        title: "Asistente de registro GPS de avistajes de ballena sei",
+        category: "Conservación Ambiental",
+        categoryIcon: "leaf",
+        gradeLevel: "4° Año",
+        slots: 3,
+        xpReward: 250,
+        status: "Abierta",
+        createdAt: "Ayer",
+        description: "Apoyo en el trabajo de campo para georreferenciar avistajes de ballenas sei desde los acantilados de la villa. El alumno registrará coordenadas, comportamientos observados y condiciones climáticas básicas bajo la supervisión de investigadores."
+      },
+      {
+        id: 5,
+        companyName: "Restaurante La Ballena",
+        title: "Sistema de reservas online para temporada",
+        category: "Logística",
+        categoryIcon: "truck",
+        gradeLevel: "5° Año",
+        slots: 1,
+        xpReward: 140,
+        status: "Abierta",
+        createdAt: "Hace 5 días",
+        description: "Desarrollo e implementación de un sistema de reservas en línea automatizado para optimizar la ocupación del salón durante la temporada de verano, incluyendo la gestión de base de datos de clientes y notificaciones por WhatsApp/Email."
+      },
+      {
+        id: 6,
+        companyName: "Agencia Turismo Comodoro",
+        title: "Contenido para guía turística digital de Rada Tilly",
+        category: "Marketing Digital",
+        categoryIcon: "megaphone",
+        gradeLevel: "3° Año",
+        slots: 2,
+        xpReward: 220,
+        status: "Completada",
+        createdAt: "Hace 2 semanas",
+        description: "Redacción de reseñas, selección de fotografías y creación de itinerarios recomendados para la nueva guía turística digital del corredor de la Ruta Azul, destacando los atractivos naturales de Rada Tilly."
+      }
+    ];
+
+    const MAP_PIN_DETAILS = {
+      'rada-tilly': {
+        title: 'Rada Tilly, Chubut',
+        badge: 'Piloto Activo',
+        desc: 'La cuna de la transición petrolera al turismo sustentable de la ballena sei. Aquí implementamos las primeras 6 misiones con la Escuela E.E.S. N° 736 "Madres de Plaza de Mayo", el Municipio y CONICET.',
+        sector: 'Ecoturismo y Conservación',
+        escuelas: '1 (E.E.S. N° 736)'
+      },
+      'malargue': {
+        title: 'Malargüe, Mendoza',
+        badge: 'Proyectado Q3 2026',
+        desc: 'Municipio con fuerte herencia minera y petrolera que avanza hacia el desarrollo de energías limpias (eólica y solar) y turismo astronómico/geológico en la Payunia.',
+        sector: 'Energías Renovables',
+        escuelas: '2 (Técnica y Media)'
+      },
+      'rufino': {
+        title: 'Rufino, Santa Fe',
+        badge: 'Proyectado Q4 2026',
+        desc: 'Comunidad agrícola-ganadera que busca integrar tecnología e innovación (AgTech) y optimizar cadenas logísticas interprovinciales a través de la formación de sus egresados.',
+        sector: 'AgroTecnología y Logística',
+        escuelas: '3 Escuelas Técnicas'
+      },
+      'zapala': {
+        title: 'Zapala, Neuquén',
+        badge: 'Proyectado Q1 2027',
+        desc: 'Centro logístico clave de la provincia que experimenta transformaciones a partir del desarrollo de Vaca Muerta y requiere especialización en servicios, transporte y control ambiental.',
+        sector: 'Logística Minera y Ambiental',
+        escuelas: '2 Escuelas Técnicas'
+      }
+    };
+
+    const PERFILES_DETALLES = {
+      "Creador Digital": {
+        emoji: "📱",
+        color: "#E91B8C",
+        colorBg: "#FDE8F4",
+        fortalezas: ["Comunicación Efectiva", "Creatividad Digital", "Redacción Audiovisual"],
+        intereses: ["Redes Sociales", "Diseño", "Marketing"],
+        carreras: ["Lic. en Comunicación Social", "Tec. en Marketing Digital", "Diseño Multimedial"]
+      },
+      "Analista de Datos": {
+        emoji: "📊",
+        color: "#1B96D5",
+        colorBg: "#E3F4FC",
+        fortalezas: ["Análisis Lógico", "Orden y Detalle", "Uso de Hojas de Cálculo"],
+        intereses: ["Estadísticas", "Sistemas", "Administración"],
+        carreras: ["Lic. en Informática", "Tec. en Ciencia de Datos", "Contador Público"]
+      },
+      "Guardián Patagónico": {
+        emoji: "🐳",
+        color: "#4BB543",
+        colorBg: "#E8F8E7",
+        fortalezas: ["Conexión con el Entorno", "Trabajo de Campo", "Conciencia Ecológica"],
+        intereses: ["Fauna Marina", "Conservación", "Turismo Sustentable"],
+        carreras: ["Lic. en Ciencias Biológicas", "Tec. en Guardaparque", "Lic. en Gestión Ambiental"]
+      },
+      "Anfitrión Local": {
+        emoji: "🗺️",
+        color: "#F7C022",
+        colorBg: "#FEF8E3",
+        fortalezas: ["Atención al Visitante", "Idiomas", "Relaciones Públicas"],
+        intereses: ["Guiado", "Servicio Turístico", "Historia Local"],
+        carreras: ["Lic. en Turismo y Hotelería", "Guía de Turismo", "Traductorado de Inglés"]
+      },
+      "Organizador Maestro": {
+        emoji: "⚡",
+        color: "#9B59B6",
+        colorBg: "#F2EAF8",
+        fortalezas: ["Planificación", "Coordinación de Grupos", "Logística Operativa"],
+        intereses: ["Eventos", "Administración", "Procesos Organizativos"],
+        carreras: ["Lic. en Administración", "Tec. en Logística", "Relaciones Públicas"]
+      },
+      "Comunicador Creativo": {
+        emoji: "🎨",
+        color: "#1BBFBF",
+        colorBg: "#E3F8F8",
+        fortalezas: ["Diseño Gráfico", "Expresión Artística", "Generación de Ideas"],
+        intereses: ["Ilustración", "Campañas Publicitarias", "Identidad de Marca"],
+        carreras: ["Lic. en Diseño de Comunicación Visual", "Publicidad", "Artes Plásticas"]
+      }
+    };
+
+    const QUIZ_QUESTIONS = [
+      {
+        id: 1,
+        question: "¿Cuál de estas actividades te divierte más en tu tiempo libre?",
+        options: [
+          { text: "📱 Crear contenido para redes sociales", val: "Creador Digital" },
+          { text: "📊 Organizar listas y archivos de datos", val: "Analista de Datos" },
+          { text: "🐳 Cuidar plantas, mascotas o estar al aire libre", val: "Guardián Patagónico" },
+          { text: "🗺️ Guiar y recomendar lugares a amigos", val: "Anfitrión Local" },
+          { text: "📦 Planificar eventos o tareas grupales", val: "Organizador Maestro" },
+          { text: "🎨 Dibujar, pintar o diseñar en Canva", val: "Comunicador Creativo" }
+        ]
+      },
+      {
+        id: 2,
+        question: "Si pudieras colaborar en un proyecto local hoy, ¿cuál elegirías?",
+        options: [
+          { text: "Lanzar la campaña de Instagram de un café local", val: "Creador Digital" },
+          { text: "Ayudar a científicos a clasificar avistajes de ballenas", val: "Guardián Patagónico" },
+          { text: "Trabajar en la oficina de turismo municipal recibiendo gente", val: "Anfitrión Local" },
+          { text: "Diseñar una planilla automatizada de reservas de hotel", val: "Organizador Maestro" },
+          { text: "Armar el análisis estadístico de visitas de la temporada", val: "Analista de Datos" },
+          { text: "Diseñar los folletos y carteles del corredor turístico", val: "Comunicador Creativo" }
+        ]
+      },
+      {
+        id: 3,
+        question: "¿Cuál sería tu espacio ideal de trabajo?",
+        options: [
+          { text: "Una oficina con múltiples pantallas organizando tareas", val: "Analista de Datos" },
+          { text: "En equipo con otras personas resolviendo retos", val: "Organizador Maestro" },
+          { text: "Al aire libre, en contacto directo con la naturaleza", val: "Guardián Patagónico" },
+          { text: "Un espacio creativo para grabar videos y editar", val: "Creador Digital" },
+          { text: "Frente al público, conversando con turistas", val: "Anfitrión Local" },
+          { text: "Tener libertad para crear e idear diseños", val: "Comunicador Creativo" }
+        ]
+      },
+      {
+        id: 4,
+        question: "¿Qué materias disfrutas más o te resultan más accesibles?",
+        options: [
+          { text: "Matemática / Estadística / Lógica", val: "Analista de Datos" },
+          { text: "Lengua / Literatura / Oratoria", val: "Creador Digital" },
+          { text: "Biología / Química / Ciencias de la Tierra", val: "Guardián Patagónico" },
+          { text: "Tecnología / Programación / Computación", val: "Organizador Maestro" },
+          { text: "Historia / Geografía / Idiomas", val: "Anfitrión Local" },
+          { text: "Plástica / Arte / Música", val: "Comunicador Creativo" }
+        ]
+      },
+      {
+        id: 5,
+        question: "Tus amigos dicen que tu mayor fortaleza (superpoder) es:",
+        options: [
+          { text: "🎨 Ser muy creativo/a e imaginativo/a", val: "Comunicador Creativo" },
+          { text: "📐 Ser ordenado/a y prestar atención al detalle", val: "Analista de Datos" },
+          { text: "🤝 Comunicarte y conectar muy fácil con otros", val: "Anfitrión Local" },
+          { text: "🔍 Observar y resolver problemas complejos", val: "Guardián Patagónico" },
+          { text: "⚡ Ejecutar y coordinar cosas rápido", val: "Organizador Maestro" }
+        ]
+      }
+    ];
+
+    // ----------------------------------------------------
+    // APP STATE
+    // ----------------------------------------------------
+    let state = {};
+
+    function initAppState() {
+      const saved = localStorage.getItem(RADAR_STATE_KEY);
+      if (saved) {
+        try {
+          state = JSON.parse(saved);
+        } catch (e) {
+          state = { users: DEMO_USERS, misiones: MISIONES_INICIALES, currentUser: null };
+        }
+      } else {
+        state = {
+          users: JSON.parse(JSON.stringify(DEMO_USERS)),
+          misiones: JSON.parse(JSON.stringify(MISIONES_INICIALES)),
+          currentUser: null
+        };
+        saveState();
+      }
+    }
+
+    function saveState() {
+      localStorage.setItem(RADAR_STATE_KEY, JSON.stringify(state));
+    }
+
+    // ----------------------------------------------------
+    // INITIALIZATION & MAIN NAVIGATION
+    // ----------------------------------------------------
+    window.addEventListener("DOMContentLoaded", () => {
+      initAppState();
+      lucide.createIcons();
+      
+      // If a user was logged in previously, restore session
+      if (state.currentUser) {
+        restoreSession(state.currentUser);
+      } else {
+        showLandingSection('landing-home');
+      }
+
+      // Init map pin click
+      selectMapPin('rada-tilly');
+    });
+
+    function restoreSession(user) {
+      // Find updated user object from state.users
+      const activeUser = state.users.find(u => u.email === user.email);
+      state.currentUser = activeUser || user;
+      saveState();
+
+      if (state.currentUser.rol === 'estudiante') {
+        document.getElementById('view-landing').classList.add('hidden');
+        document.getElementById('view-empresa').classList.add('hidden');
+        document.getElementById('view-docente').classList.add('hidden');
+        document.getElementById('view-student').classList.remove('hidden');
+        changeStudentTab('home');
+      } else if (state.currentUser.rol === 'empresa') {
+        document.getElementById('view-landing').classList.add('hidden');
+        document.getElementById('view-student').classList.add('hidden');
+        document.getElementById('view-docente').classList.add('hidden');
+        document.getElementById('view-empresa').classList.remove('hidden');
+        changeCompanyTab('inicio');
+      } else if (state.currentUser.rol === 'docente') {
+        document.getElementById('view-landing').classList.add('hidden');
+        document.getElementById('view-student').classList.add('hidden');
+        document.getElementById('view-empresa').classList.add('hidden');
+        document.getElementById('view-docente').classList.remove('hidden');
+        changeDocenteTab('alumnos');
+      }
+      lucide.createIcons();
+    }
+
+    function showLandingSection(sectionId) {
+      document.getElementById('view-student').classList.add('hidden');
+      document.getElementById('view-empresa').classList.add('hidden');
+      document.getElementById('view-docente').classList.add('hidden');
+      document.getElementById('view-landing').classList.remove('hidden');
+
+      const sections = ['landing-home', 'landing-about', 'landing-scale', 'landing-login'];
+      sections.forEach(s => {
+        const el = document.getElementById(s);
+        if (s === sectionId) {
+          el.classList.remove('hidden');
+          el.classList.add('fade-in');
+        } else {
+          el.classList.add('hidden');
+        }
+      });
+      lucide.createIcons();
+    }
+
+    function changeScreenDirect(viewId, screenId) {
+      document.getElementById('view-landing').classList.add('hidden');
+      document.getElementById('view-student').classList.add('hidden');
+      document.getElementById('view-empresa').classList.add('hidden');
+      document.getElementById('view-docente').classList.add('hidden');
+
+      document.getElementById(viewId).classList.remove('hidden');
+
+      if (viewId === 'view-student') {
+        const screens = [
+          'screen-select-rol', 'student-reg-1', 'student-reg-1-5', 
+          'student-reg-2', 'student-reg-3', 'student-home', 
+          'student-tablero', 'student-mission-detail', 'student-profile', 
+          'student-certificates', 'student-talent-map', 'student-messages'
+        ];
+        screens.forEach(s => document.getElementById(s).classList.add('hidden'));
+        document.getElementById(screenId).classList.remove('hidden');
+        document.getElementById(screenId).classList.add('fade-in');
+
+        // Toggle nav bar visibility
+        const isAppScreen = ['student-home', 'student-tablero', 'student-profile', 'student-messages', 'student-certificates', 'student-talent-map'].includes(screenId);
+        const nav = document.getElementById('student-bottom-nav');
+        if (isAppScreen) {
+          nav.classList.remove('hidden');
+        } else {
+          nav.classList.add('hidden');
+        }
+      }
+      lucide.createIcons();
+    }
+
+    function logout() {
+      state.currentUser = null;
+      saveState();
+      showLandingSection('landing-home');
+      createToast("Sesión cerrada correctamente.", "info");
+    }
+
+    // ----------------------------------------------------
+    // AUTHENTICATION
+    // ----------------------------------------------------
+    function fillLogin(email, password) {
+      document.getElementById('login-email').value = email;
+      document.getElementById('login-password').value = password;
+      triggerAuth();
+    }
+
+    function togglePasswordVisibility() {
+      const pInput = document.getElementById('login-password');
+      pInput.type = pInput.type === 'password' ? 'text' : 'password';
+    }
+
+    function triggerAuth() {
+      const email = document.getElementById('login-email').value;
+      const pass = document.getElementById('login-password').value;
+
+      const user = state.users.find(u => u.email.toLowerCase() === email.toLowerCase() && u.password === pass);
+      if (user) {
+        createToast(`¡Bienvenido, ${user.nombre || user.contacto || 'Usuario'}!`, "success");
+        restoreSession(user);
+      } else {
+        createToast("Credenciales incorrectas. Verifique los accesos rápidos de prueba.", "error");
+      }
+    }
+
+    // ----------------------------------------------------
+    // REGISTRATION FLOW (STUDENT)
+    // ----------------------------------------------------
+    let regTempData = {};
+
+    function selectRole(role) {
+      showLandingSection('landing-login');
+      if (role === 'estudiante') {
+        createToast("Hacé clic en el acceso rápido de Estudiante o creá una cuenta de invitado.", "info");
+      } else if (role === 'empresa') {
+        createToast("Hacé clic en el acceso rápido de Empresa.", "info");
+      } else if (role === 'docente') {
+        createToast("Hacé clic en el acceso rápido de Docente.", "info");
+      }
+    }
+
+    function startCompanyRegistration() {
+      const companyName = prompt("Ingresá el nombre de tu Empresa / Emprendimiento:");
+      if (!companyName) return;
+      const email = `contacto@${companyName.toLowerCase().replace(/[^a-z0-9]/g, '')}.com`;
+      const newCompany = {
+        email: email,
+        password: "radar123",
+        rol: "empresa",
+        nombre: companyName,
+        contacto: "Representante"
+      };
+      state.users.push(newCompany);
+      saveState();
+      createToast(`¡Empresa ${companyName} registrada! Iniciando sesión...`, "success");
+      restoreSession(newCompany);
+    }
+
+    function startDocenteRegistration() {
+      const teacherName = prompt("Ingresá tu Nombre Completo (ej: Prof. Laura Martínez):");
+      if (!teacherName) return;
+      const email = `${teacherName.toLowerCase().replace(/[^a-z0-9]/g, '').split(' ')[0]}@ees736.edu.ar`;
+      const newDocente = {
+        email: email,
+        password: "radar123",
+        rol: "docente",
+        nombre: teacherName,
+        materia: "Educación Tecnológica",
+        cursos: ["4°B", "5°A"],
+        escuela: "E.E.S. N° 736 · Rada Tilly"
+      };
+      state.users.push(newDocente);
+      saveState();
+      createToast(`¡Docente ${teacherName} registrado! Iniciando sesión...`, "success");
+      restoreSession(newDocente);
+    }
+
+    function startStudentRegistration() {
+      regTempData = {
+        rol: "estudiante",
+        misionesEnCurso: [],
+        misionesCompletadas: [],
+        certificados: { nivel1: "bloqueado", nivel2: "bloqueado", nivel3: "bloqueado" },
+        xp: 0,
+        nivel: 1
+      };
+      // Reset inputs
+      document.getElementById('reg-student-name').value = '';
+      document.getElementById('reg-student-email').value = '';
+      document.getElementById('reg-student-pass').value = '';
+      document.getElementById('reg-student-year').value = '';
+      document.getElementById('reg-student-agree').checked = false;
+
+      changeScreenDirect('view-student', 'student-reg-1');
+    }
+
+    function submitStudentReg1() {
+      const name = document.getElementById('reg-student-name').value.trim();
+      const email = document.getElementById('reg-student-email').value.trim();
+      const pass = document.getElementById('reg-student-pass').value;
+      const year = document.getElementById('reg-student-year').value;
+      const agree = document.getElementById('reg-student-agree').checked;
+
+      if (!name || !email || !pass || !year || !agree) {
+        createToast("Por favor complete todos los datos y acepte los términos.", "error");
+        return;
+      }
+
+      regTempData.nombre = name;
+      regTempData.email = email;
+      regTempData.password = pass;
+      regTempData.anio = year + "° Año";
+
+      renderCourseSelector(year);
+      changeScreenDirect('view-student', 'student-reg-1-5');
+    }
+
+    const TEACHER_ASSIGNMENTS = {
+      "3°C": { name: "Prof. Diego García", subject: "Ciencias Naturales" },
+      "3°D": { name: "Prof. Diego García", subject: "Ciencias Naturales" },
+      "4°B": { name: "Prof. Laura Martínez", subject: "Economía y Administración" },
+      "5°A": { name: "Prof. Laura Martínez", subject: "Economía y Administración" },
+      "generic": { name: "Prof. Roberto Díaz", subject: "Tutoria General" }
+    };
+
+    function renderCourseSelector(year) {
+      const grid = document.getElementById('course-selector-grid');
+      grid.innerHTML = '';
+      
+      const divisions = ['A', 'B', 'C', 'D'];
+      divisions.forEach(div => {
+        const courseName = `${year}°${div}`;
+        const card = document.createElement('div');
+        card.className = "border-2 border-slate-200 rounded-xl p-3 text-center cursor-pointer hover:border-rtPurple hover:bg-rtPurpleLight transition-all font-black text-slate-700";
+        card.textContent = courseName;
+        card.onclick = () => {
+          document.querySelectorAll('#course-selector-grid > div').forEach(c => c.classList.remove('border-rtPurple', 'bg-rtPurpleLight', 'text-rtPurple'));
+          card.classList.add('border-rtPurple', 'bg-rtPurpleLight', 'text-rtPurple');
+          
+          regTempData.curso = courseName;
+          const details = TEACHER_ASSIGNMENTS[courseName] || TEACHER_ASSIGNMENTS["generic"];
+          regTempData.docente = details.name;
+
+          document.getElementById('assigned-teacher-name').textContent = details.name;
+          document.getElementById('assigned-teacher-subject').textContent = details.subject;
+          document.getElementById('teacher-assignment-box').classList.remove('hidden');
+        };
+        grid.appendChild(card);
+      });
+    }
+
+    function submitStudentReg15() {
+      if (!regTempData.curso) {
+        createToast("Debe seleccionar una división de curso.", "error");
+        return;
+      }
+      // Start quiz
+      currentQuizStep = 0;
+      quizScore = {};
+      loadQuizQuestion();
+      changeScreenDirect('view-student', 'student-reg-2');
+    }
+
+    let currentQuizStep = 0;
+    let quizScore = {};
+
+    function loadQuizQuestion() {
+      const q = QUIZ_QUESTIONS[currentQuizStep];
+      const container = document.getElementById('quiz-question-container');
+      
+      const progressPercent = ((currentQuizStep) / QUIZ_QUESTIONS.length) * 100;
+      
+      container.innerHTML = `
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-black text-slate-400">Pregunta ${currentQuizStep + 1} de ${QUIZ_QUESTIONS.length}</span>
+          <span class="text-xs font-black text-rtTeal">${Math.round(progressPercent)}% completado</span>
+        </div>
+        <div class="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
+          <div class="bg-rtTeal h-full" style="width: ${progressPercent}%"></div>
+        </div>
+
+        <h3 class="text-base font-black text-rtDark mt-4 leading-tight">${q.question}</h3>
+
+        <div class="space-y-2.5 pt-2">
+          ${q.options.map((opt, idx) => `
+            <button onclick="answerQuizQuestion('${opt.val}')" class="w-full text-left bg-white border-2 border-slate-200 hover:border-rtTeal hover:bg-rtTealLight p-3.5 rounded-2xl font-bold text-xs text-slate-700 transition-all">
+              ${opt.text}
+            </button>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    function answerQuizQuestion(selectedVal) {
+      quizScore[selectedVal] = (quizScore[selectedVal] || 0) + 1;
+      
+      currentQuizStep++;
+      if (currentQuizStep < QUIZ_QUESTIONS.length) {
+        loadQuizQuestion();
+      } else {
+        // Show loading screen and process
+        changeScreenDirect('view-student', 'student-reg-loading');
+        setTimeout(() => {
+          processQuizResult();
+        }, 1500);
+      }
+    }
+
+    function processQuizResult() {
+      // Determine profile
+      let maxScore = -1;
+      let finalProfile = "Guardián Patagónico"; // fallback
+      
+      Object.keys(quizScore).forEach(profile => {
+        if (quizScore[profile] > maxScore) {
+          maxScore = quizScore[profile];
+          finalProfile = profile;
+        }
+      });
+
+      regTempData.perfil = finalProfile;
+      regTempData.xp = 50; // Welcome XP
+      
+      // Copy strengths & interests from definition
+      const details = PERFILES_DETALLES[finalProfile];
+      regTempData.fortalezas = [...details.fortalezas];
+      regTempData.intereses = [...details.intereses];
+
+      // Update Result UI
+      document.getElementById('reg-result-emoji').textContent = details.emoji;
+      document.getElementById('reg-result-title').textContent = finalProfile.toUpperCase();
+      document.getElementById('reg-result-title').className = `text-2xl font-black uppercase text-[${details.color}]`;
+      
+      const strengthsList = document.getElementById('reg-result-strengths');
+      strengthsList.innerHTML = details.fortalezas.map(f => `<li>${f}</li>`).join('');
+
+      const card = document.getElementById('reg-result-card');
+      card.style.borderColor = details.color;
+      card.style.backgroundColor = details.colorBg;
+
+      changeScreenDirect('view-student', 'student-reg-3');
+    }
+
+    function finishStudentRegistration() {
+      // Add to global state
+      state.users.push(regTempData);
+      state.currentUser = regTempData;
+      saveState();
+
+      createToast("¡Registro completado! Bienvenido a Radar T.", "success");
+      restoreSession(regTempData);
+    }
+
+    // ----------------------------------------------------
+    // STUDENT TABS NAVIGATION
+    // ----------------------------------------------------
+    function changeStudentTab(tabId) {
+      const screens = {
+        'home': 'student-home',
+        'misiones': 'student-tablero',
+        'perfil': 'student-profile',
+        'certificados': 'student-certificates',
+        'map': 'student-talent-map',
+        'mensajes': 'student-messages'
+      };
+
+      // Hide all student screens
+      Object.values(screens).forEach(id => {
+        document.getElementById(id).classList.add('hidden');
+      });
+
+      // Show selected screen
+      const targetScreen = screens[tabId];
+      if (targetScreen) {
+        document.getElementById(targetScreen).classList.remove('hidden');
+        document.getElementById(targetScreen).classList.add('fade-in');
+      }
+
+      // Update nav button colors
+      const navButtons = {
+        'home': 'nav-btn-home',
+        'misiones': 'nav-btn-misiones',
+        'certificados': 'nav-btn-certificados',
+        'perfil': 'nav-btn-perfil',
+        'mensajes': 'nav-btn-mensajes'
+      };
+
+      Object.entries(navButtons).forEach(([key, btnId]) => {
+        const btn = document.getElementById(btnId);
+        if (key === tabId || (tabId === 'map' && key === 'perfil')) {
+          btn.className = "flex flex-col items-center gap-0.5 text-rtPink";
+        } else {
+          btn.className = "flex flex-col items-center gap-0.5 text-slate-400 hover:text-slate-600";
+        }
+      });
+
+      // Special content renderers
+      if (tabId === 'home') {
+        renderStudentHome();
+      } else if (tabId === 'misiones') {
+        renderStudentTablero();
+      } else if (tabId === 'perfil') {
+        renderStudentProfile();
+      } else if (tabId === 'certificados') {
+        renderStudentCertificates();
+      } else if (tabId === 'map') {
+        renderStudentRadarChart();
+      } else if (tabId === 'mensajes') {
+        renderStudentMessages();
+      }
+
+      lucide.createIcons();
+    }
+
+    // ----------------------------------------------------
+    // STUDENT VIEW RENDERERS
+    // ----------------------------------------------------
+    function renderStudentHome() {
+      const u = state.users.find(usr => usr.email === state.currentUser.email);
+      document.getElementById('sh-welcome-name').textContent = `¡Hola, ${u.nombre.split(' ')[0]}!`;
+      document.getElementById('sh-level-name').textContent = `Nivel ${u.nivel} · ${u.perfil}`;
+      
+      document.getElementById('sh-xp-current').textContent = `${u.xp} XP`;
+      let nextXp = u.nivel === 1 ? 500 : u.nivel === 2 ? 1500 : 3000;
+      document.getElementById('sh-xp-next').textContent = `${nextXp} XP`;
+      const xpPercent = Math.min((u.xp / nextXp) * 100, 100);
+      document.getElementById('sh-xp-bar').style.width = xpPercent + '%';
+
+      // Cert progress
+      const totalTaken = u.misionesEnCurso.length + u.misionesCompletadas.length;
+      let certPercent = 0;
+      let nextCertText = "Nivel 1 · Certificado de Participación";
+      
+      if (u.certificados.nivel1 === 'bloqueado' || u.certificados.nivel1 === 'en-progreso') {
+        certPercent = u.misionesCompletadas.length > 0 ? 100 : (u.misionesEnCurso.length > 0 ? 50 : 0);
+        nextCertText = "Nivel 1 · Certificado de Participación";
+      } else if (u.certificados.nivel2 === 'bloqueado' || u.certificados.nivel2 === 'en-progreso') {
+        certPercent = u.misionesCompletadas.length > 0 ? 50 : 0;
+        if (u.certificados.nivel2 === 'desbloqueado') certPercent = 100;
+        nextCertText = "Nivel 2 · Certificado de Competencia";
+      } else {
+        certPercent = u.misionesCompletadas.length >= 2 ? 100 : 50;
+        nextCertText = "Nivel 3 · Aval Institucional";
+      }
+      document.getElementById('sh-cert-next').textContent = nextCertText;
+      document.getElementById('sh-cert-bar').style.width = certPercent + '%';
+
+      // Recommended Missions (matching profile)
+      const recList = document.getElementById('sh-recommended-list');
+      recList.innerHTML = '';
+      const matchingMissions = state.misiones.filter(m => m.category === u.perfil || m.status === 'Abierta').slice(0, 3);
+      
+      if (matchingMissions.length === 0) {
+        recList.innerHTML = `<p class="text-xs text-slate-400 font-bold p-4">No hay misiones recomendadas en este momento.</p>`;
+      } else {
+        matchingMissions.forEach(m => {
+          const detail = PERFILES_DETALLES[m.category] || PERFILES_DETALLES["Guardián Patagónico"];
+          const card = document.createElement('div');
+          card.className = "min-w-[250px] bg-white border-2 border-slate-900 rounded-2xl p-4 cursor-pointer hover:shadow-md transition-shadow flex flex-col justify-between";
+          card.onclick = () => showMissionDetail(m.id);
+          card.innerHTML = `
+            <div>
+              <span class="text-[10px] font-black px-2 py-0.5 rounded-full" style="background-color: ${detail.colorBg}; color: ${detail.color};">${m.category}</span>
+              <h4 class="font-black text-sm text-rtDark mt-2 line-clamp-2 leading-tight">${m.title}</h4>
+              <p class="text-[10px] font-bold text-slate-400 mt-1">${m.companyName}</p>
+            </div>
+            <div class="flex justify-between items-center mt-3 pt-2 border-t border-slate-100">
+              <span class="text-[9px] font-bold text-slate-500">${m.gradeLevel}</span>
+              <span class="text-xs font-black text-rtPink">+${m.xpReward} XP</span>
+            </div>
+          `;
+          recList.appendChild(card);
+        });
+      }
+
+      // Lo nuevo
+      const newList = document.getElementById('sh-new-list');
+      newList.innerHTML = '';
+      const recentMissions = [...state.misiones].reverse().slice(0, 2);
+      recentMissions.forEach(m => {
+        const detail = PERFILES_DETALLES[m.category] || PERFILES_DETALLES["Guardián Patagónico"];
+        const card = document.createElement('div');
+        card.className = "bg-white border-2 border-slate-900 rounded-2xl p-4 flex justify-between items-center cursor-pointer hover:shadow-md";
+        card.onclick = () => showMissionDetail(m.id);
+        card.innerHTML = `
+          <div class="flex items-center gap-3">
+            <span class="text-3xl">${detail.emoji}</span>
+            <div>
+              <h4 class="font-black text-xs text-rtDark line-clamp-1">${m.title}</h4>
+              <p class="text-[10px] font-bold text-slate-400">${m.companyName}</p>
+            </div>
+          </div>
+          <i data-lucide="chevron-right" class="w-5 h-5 text-slate-400"></i>
+        `;
+        newList.appendChild(card);
+      });
+    }
+
+    let activeCategoryFilter = "Todos";
+    let activeStatusFilter = "Todos";
+
+    function renderStudentTablero() {
+      const u = state.users.find(usr => usr.email === state.currentUser.email);
+      
+      // Render Category Filter pills
+      const catFilters = document.getElementById('tablero-cat-filters');
+      catFilters.innerHTML = '';
+      
+      // All Option
+      const allBtn = document.createElement('button');
+      allBtn.className = `px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap ${activeCategoryFilter === 'Todos' ? 'bg-rtDark text-white' : 'bg-white text-slate-600 border border-slate-200'}`;
+      allBtn.textContent = 'Todas';
+      allBtn.onclick = () => { activeCategoryFilter = 'Todos'; renderStudentTablero(); };
+      catFilters.appendChild(allBtn);
+
+      Object.entries(PERFILES_DETALLES).forEach(([catName, details]) => {
+        const btn = document.createElement('button');
+        btn.className = `px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap flex items-center gap-1 ${activeCategoryFilter === catName ? 'bg-rtDark text-white' : 'bg-white text-slate-600 border border-slate-200'}`;
+        btn.innerHTML = `<span>${details.emoji}</span> <span>${catName}</span>`;
+        btn.onclick = () => { activeCategoryFilter = catName; renderStudentTablero(); };
+        catFilters.appendChild(btn);
+      });
+
+      // Render Missions
+      const list = document.getElementById('tablero-missions-list');
+      list.innerHTML = '';
+
+      let filtered = state.misiones;
+      if (activeCategoryFilter !== 'Todos') {
+        filtered = filtered.filter(m => m.category === activeCategoryFilter);
+      }
+      if (activeStatusFilter !== 'Todos') {
+        if (activeStatusFilter === 'Abierta') {
+          filtered = filtered.filter(m => m.status === 'Abierta' && !u.misionesEnCurso.includes(m.id) && !u.misionesCompletadas.includes(m.id));
+        } else if (activeStatusFilter === 'En curso') {
+          filtered = filtered.filter(m => u.misionesEnCurso.includes(m.id));
+        } else if (activeStatusFilter === 'Completada') {
+          filtered = filtered.filter(m => u.misionesCompletadas.includes(m.id));
+        }
+      }
+
+      if (filtered.length === 0) {
+        list.innerHTML = `
+          <div class="text-center py-12 space-y-2">
+            <p class="text-2xl">🔍</p>
+            <p class="text-sm font-bold text-slate-500">No se encontraron misiones.</p>
+          </div>
+        `;
+        return;
+      }
+
+      filtered.forEach(m => {
+        const details = PERFILES_DETALLES[m.category] || PERFILES_DETALLES["Guardián Patagónico"];
+        
+        let displayStatus = m.status;
+        let statusClass = "bg-green-100 text-green-700";
+        
+        if (u.misionesEnCurso.includes(m.id)) {
+          displayStatus = "En curso";
+          statusClass = "bg-rtYellowLight text-rtYellow border border-rtYellow/50";
+        } else if (u.misionesCompletadas.includes(m.id)) {
+          displayStatus = "Completada";
+          statusClass = "bg-rtGreenLight text-rtGreen border border-rtGreen/50";
+        } else if (m.status === 'Abierta') {
+          displayStatus = "Abierta";
+          statusClass = "bg-blue-100 text-blue-700";
+        }
+
+        const card = document.createElement('div');
+        card.className = "bg-white border-2 border-slate-900 rounded-3xl p-4 border-l-8 cursor-pointer hover:shadow-sm transition-all";
+        card.style.borderLeftColor = details.color;
+        card.onclick = () => showMissionDetail(m.id);
+        card.innerHTML = `
+          <div class="flex justify-between items-start">
+            <span class="text-[9px] font-black px-2 py-0.5 rounded-full" style="background-color: ${details.colorBg}; color: ${details.color};">${m.category}</span>
+            <span class="text-[9px] font-black px-2 py-0.5 rounded-full ${statusClass}">${displayStatus}</span>
+          </div>
+          <h4 class="font-black text-sm text-rtDark mt-2 leading-tight">${m.title}</h4>
+          <p class="text-[10px] font-bold text-slate-400 mt-1">${m.companyName}</p>
+          <div class="flex justify-between items-center mt-3 pt-2 border-t border-slate-100 text-[10px] font-bold text-slate-500">
+            <span>Año: ${m.gradeLevel}</span>
+            <span class="text-rtPink font-black">+${m.xpReward} XP</span>
+          </div>
+        `;
+        list.appendChild(card);
+      });
+      lucide.createIcons();
+    }
+
+    function setTableroStatusFilter(status) {
+      activeStatusFilter = status;
+      document.querySelectorAll('.status-filter-btn').forEach(btn => {
+        btn.className = "status-filter-btn px-3 py-1 rounded-full text-xs font-bold bg-white text-slate-600 border border-slate-200";
+        if (btn.textContent === status || (status === 'Todos' && btn.textContent === 'Todos') || (status === 'En curso' && btn.textContent === 'En curso') || (status === 'Completada' && btn.textContent === 'Completadas') || (status === 'Abierta' && btn.textContent === 'Abiertas')) {
+          btn.className = "status-filter-btn px-3 py-1 rounded-full text-xs font-bold bg-rtDark text-white";
+        }
+      });
+      renderStudentTablero();
+    }
+
+    function showMissionDetail(misionId) {
+      const m = state.misiones.find(x => x.id === misionId);
+      const u = state.users.find(usr => usr.email === state.currentUser.email);
+      const details = PERFILES_DETALLES[m.category] || PERFILES_DETALLES["Guardián Patagónico"];
+
+      let btnHtml = '';
+      if (u.misionesCompletadas.includes(m.id)) {
+        btnHtml = `
+          <div class="bg-rtGreenLight border-2 border-rtGreen p-4 rounded-2xl text-center text-rtGreen font-black text-sm flex items-center justify-center gap-2">
+            <i data-lucide="check-circle" class="w-5 h-5"></i> Misión Completada y Validada
+          </div>
+        `;
+      } else if (u.misionesEnCurso.includes(m.id)) {
+        btnHtml = `
+          <button class="w-full bg-slate-200 text-slate-500 border-2 border-slate-300 font-black py-4 rounded-2xl text-sm cursor-not-allowed flex items-center justify-center gap-2" disabled>
+            <i data-lucide="clock" class="w-5 h-5"></i> Misión en curso (En revisión)
+          </button>
+        `;
+      } else {
+        btnHtml = `
+          <button onclick="studentAcceptMission(${m.id})" class="w-full bg-rtPink text-white font-black py-4 rounded-2xl btn-3d shadow-[0_4px_0_#9a0050] text-sm flex items-center justify-center gap-2">
+            <i data-lucide="zap" class="w-5 h-5"></i> Tomar esta misión
+          </button>
+        `;
+      }
+
+      document.getElementById('smd-card-content').innerHTML = `
+        <div class="bg-white border-2 border-slate-900 rounded-3xl p-5 shadow-[4px_4px_0px_#1a1a2e] space-y-6">
+          <div class="space-y-2">
+            <span class="text-[10px] font-black px-2 py-1 rounded" style="background-color: ${details.colorBg}; color: ${details.color};">${m.category}</span>
+            <h3 class="text-xl font-black text-rtDark leading-tight">${m.title}</h3>
+            <p class="text-xs font-bold text-slate-400">${m.companyName}</p>
+          </div>
+
+          <div class="border-t border-slate-100 pt-4 space-y-2">
+            <h4 class="text-xs font-black text-slate-500 uppercase">Descripción</h4>
+            <p class="text-xs text-slate-600 font-semibold leading-relaxed">${m.description}</p>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3 pt-2">
+            <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 text-center">
+              <span class="text-[10px] text-slate-400 font-bold block">RECOMPENSA</span>
+              <span class="text-sm font-black text-rtPink">+${m.xpReward} XP</span>
+            </div>
+            <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 text-center">
+              <span class="text-[10px] text-slate-400 font-bold block">AÑO SUGERIDO</span>
+              <span class="text-sm font-black text-slate-700">${m.gradeLevel}</span>
+            </div>
+            <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 text-center">
+              <span class="text-[10px] text-slate-400 font-bold block">CUPOS TOTALES</span>
+              <span class="text-sm font-black text-slate-700">${m.slots}</span>
+            </div>
+            <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 text-center">
+              <span class="text-[10px] text-slate-400 font-bold block">PUBLICADO</span>
+              <span class="text-sm font-black text-slate-700">${m.createdAt}</span>
+            </div>
+          </div>
+
+          ${btnHtml}
+        </div>
+      `;
+
+      changeScreenDirect('view-student', 'student-mission-detail');
+      lucide.createIcons();
+    }
+
+    function studentAcceptMission(misionId) {
+      const u = state.users.find(usr => usr.email === state.currentUser.email);
+      u.misionesEnCurso.push(misionId);
+      u.xp += 25; // add 25 XP for taking
+      saveState();
+
+      // Trigger Confetti
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 }
+      });
+
+      createToast("¡Misión aceptada! +25 XP. Tu docente ha sido notificado.", "success");
+      showMissionDetail(misionId);
+    }
+
+    function renderStudentProfile() {
+      const u = state.users.find(usr => usr.email === state.currentUser.email);
+      const details = PERFILES_DETALLES[u.perfil] || PERFILES_DETALLES["Guardián Patagónico"];
+
+      document.getElementById('sp-avatar').textContent = details.emoji;
+      document.getElementById('sp-name').textContent = u.nombre;
+      document.getElementById('sp-grade').textContent = `${u.anio} · Curso ${u.curso} · ${u.docente}`;
+      document.getElementById('sp-level').textContent = `Nivel ${u.nivel}`;
+      document.getElementById('sp-xp').textContent = `${u.xp} XP`;
+
+      // Active
+      const activeList = document.getElementById('sp-active-missions');
+      activeList.innerHTML = '';
+      if (u.misionesEnCurso.length === 0) {
+        activeList.innerHTML = `<p class="text-xs text-slate-400 font-bold">No tenés misiones activas.</p>`;
+      } else {
+        u.misionesEnCurso.forEach(id => {
+          const m = state.misiones.find(x => x.id === id);
+          if (m) {
+            const card = document.createElement('div');
+            card.className = "bg-white border border-slate-200 rounded-xl p-3 flex justify-between items-center";
+            card.innerHTML = `
+              <div>
+                <p class="text-xs font-black text-slate-700">${m.title}</p>
+                <p class="text-[10px] font-bold text-slate-400">${m.companyName}</p>
+              </div>
+              <span class="text-[9px] font-black bg-rtYellowLight text-rtYellow px-2 py-0.5 rounded-full">En Curso</span>
+            `;
+            activeList.appendChild(card);
+          }
+        });
+      }
+
+      // Completed
+      const compList = document.getElementById('sp-completed-missions');
+      compList.innerHTML = '';
+      if (u.misionesCompletadas.length === 0) {
+        compList.innerHTML = `<p class="text-xs text-slate-400 font-bold">Aún no completaste misiones.</p>`;
+      } else {
+        u.misionesCompletadas.forEach(id => {
+          const m = state.misiones.find(x => x.id === id);
+          if (m) {
+            const card = document.createElement('div');
+            card.className = "bg-white border border-slate-200 rounded-xl p-3 flex justify-between items-center";
+            card.innerHTML = `
+              <div>
+                <p class="text-xs font-black text-slate-700">${m.title}</p>
+                <p class="text-[10px] font-bold text-slate-400">${m.companyName}</p>
+              </div>
+              <span class="text-[9px] font-black bg-rtGreenLight text-rtGreen px-2 py-0.5 rounded-full">Completada</span>
+            `;
+            compList.appendChild(card);
+          }
+        });
+      }
+    }
+
+    function openTalentMap() {
+      changeStudentTab('map');
+    }
+
+    function openCertificatesList() {
+      changeStudentTab('certificados');
+    }
+
+    function renderStudentCertificates() {
+      const u = state.users.find(usr => usr.email === state.currentUser.email);
+      const container = document.getElementById('sc-certificates-container');
+      container.innerHTML = '';
+
+      // Certificate 1: Participación
+      const cert1Status = u.certificados.nivel1;
+      let cert1Html = '';
+      if (cert1Status === 'desbloqueado') {
+        cert1Html = `
+          <div class="bg-rtGreenLight border-2 border-rtGreen rounded-3xl p-5 space-y-3 relative overflow-hidden">
+            <div class="flex items-center justify-between">
+              <h3 class="font-black text-rtGreen text-sm">NIVEL 1 · Certificado de Participación</h3>
+              <span class="text-xl">🌱</span>
+            </div>
+            <p class="text-[11px] font-bold text-slate-600">¡Otorgado y firmado digitalmente! Acredita tus horas básicas de práctica.</p>
+            <button onclick="viewCertificateModal('nivel1')" class="bg-rtGreen text-white font-black text-xs px-4 py-2.5 rounded-xl btn-3d shadow-[0_3px_0_#2b7326]">
+              👁️ Ver Certificado
+            </button>
+          </div>
+        `;
+      } else {
+        cert1Html = `
+          <div class="bg-slate-50 border-2 border-dashed border-slate-300 rounded-3xl p-5 space-y-3 opacity-80">
+            <div class="flex items-center justify-between">
+              <h3 class="font-black text-slate-400 text-sm">NIVEL 1 · Certificado de Participación</h3>
+              <span class="text-xl">🌱</span>
+            </div>
+            <p class="text-[11px] font-bold text-slate-500">Estado: En Progreso (60%)</p>
+            <div class="w-full bg-slate-200 h-1.5 rounded-full overflow-hidden">
+              <div class="bg-rtGreen h-full" style="width: 60%"></div>
+            </div>
+            <ul class="text-[10px] font-bold text-slate-500 space-y-1">
+              <li class="flex items-center gap-1.5 text-rtGreen"><i data-lucide="check" class="w-3.5 h-3.5"></i> Completar registro y test vocacional</li>
+              <li class="flex items-center gap-1.5"><i data-lucide="clock" class="w-3.5 h-3.5"></i> Esperar validación pedagógica de tu docente</li>
+            </ul>
+          </div>
+        `;
+      }
+
+      // Certificate 2: Competencia
+      const cert2Status = u.certificados.nivel2;
+      let cert2Html = '';
+      if (cert2Status === 'desbloqueado') {
+        cert2Html = `
+          <div class="bg-rtBlueLight border-2 border-rtBlue rounded-3xl p-5 space-y-3 relative overflow-hidden">
+            <div class="flex items-center justify-between">
+              <h3 class="font-black text-rtBlue text-sm">NIVEL 2 · Certificado de Competencia</h3>
+              <span class="text-xl">⭐</span>
+            </div>
+            <p class="text-[11px] font-bold text-slate-600">¡Otorgado por la empresa patrocinante! Demuestra habilidades adquiridas.</p>
+            <button onclick="viewCertificateModal('nivel2')" class="bg-rtBlue text-white font-black text-xs px-4 py-2.5 rounded-xl btn-3d shadow-[0_3px_0_#0f5b82]">
+              👁️ Ver Certificado
+            </button>
+          </div>
+        `;
+      } else {
+        cert2Html = `
+          <div class="bg-slate-50 border-2 border-dashed border-slate-300 rounded-3xl p-5 space-y-3 opacity-60">
+            <div class="flex items-center justify-between">
+              <h3 class="font-black text-slate-400 text-sm">NIVEL 2 · Certificado de Competencia</h3>
+              <span class="text-xl">🔒</span>
+            </div>
+            <p class="text-[11px] font-bold text-slate-500">Requiere: Nivel 1 aprobado + evaluación satisfactoria de la Empresa.</p>
+          </div>
+        `;
+      }
+
+      // Certificate 3: Aval Institucional
+      const cert3Status = u.certificados.nivel3;
+      let cert3Html = '';
+      if (cert3Status === 'desbloqueado') {
+        cert3Html = `
+          <div class="bg-rtYellowLight border-2 border-rtYellow rounded-3xl p-5 space-y-3 relative overflow-hidden">
+            <div class="flex items-center justify-between">
+              <h3 class="font-black text-rtYellow text-sm">NIVEL 3 · Aval Institucional</h3>
+              <span class="text-xl">🏆</span>
+            </div>
+            <p class="text-[11px] font-bold text-slate-600">¡Máximo galardón! Avalado por la escuela, la empresa y el Municipio de Rada Tilly.</p>
+            <button onclick="viewCertificateModal('nivel3')" class="bg-rtYellow text-white font-black text-xs px-4 py-2.5 rounded-xl btn-3d shadow-[0_3px_0_#a87c0d]">
+              👁️ Ver Certificado
+            </button>
+          </div>
+        `;
+      } else {
+        cert3Html = `
+          <div class="bg-slate-50 border-2 border-dashed border-slate-300 rounded-3xl p-5 space-y-3 opacity-60">
+            <div class="flex items-center justify-between">
+              <h3 class="font-black text-slate-400 text-sm">NIVEL 3 · Aval Institucional</h3>
+              <span class="text-xl">🔒</span>
+            </div>
+            <p class="text-[11px] font-bold text-slate-500">Requiere: Niveles 1 y 2 aprobados + impacto validado por el Municipio.</p>
+          </div>
+        `;
+      }
+
+      container.innerHTML = cert1Html + cert2Html + cert3Html;
+      lucide.createIcons();
+    }
+
+    let radarChartInstance = null;
+
+    function renderStudentRadarChart() {
+      const u = state.users.find(usr => usr.email === state.currentUser.email);
+      const details = PERFILES_DETALLES[u.perfil] || PERFILES_DETALLES["Guardián Patagónico"];
+
+      document.getElementById('stm-profile-name').textContent = u.perfil;
+      document.getElementById('stm-profile-name').style.color = details.color;
+      
+      const careersContainer = document.getElementById('stm-careers');
+      careersContainer.innerHTML = details.carreras.map(c => `
+        <span class="text-[10px] font-black bg-slate-200 text-slate-700 px-2.5 py-1 rounded-full">${c}</span>
+      `).join('');
+
+      // Setup Chart.js Radar Chart
+      const ctx = document.getElementById('student-radar-chart').getContext('2d');
+      if (radarChartInstance) {
+        radarChartInstance.destroy();
+      }
+
+      // Generate chart data based on profile
+      let dataValues = [60, 60, 60, 60, 60, 60]; // default
+      if (u.perfil === "Guardián Patagónico") {
+        dataValues = [40, 60, 80, 95, 50, 45];
+      } else if (u.perfil === "Creador Digital") {
+        dataValues = [95, 40, 50, 40, 85, 75];
+      } else if (u.perfil === "Analista de Datos") {
+        dataValues = [45, 95, 40, 30, 50, 80];
+      } else if (u.perfil === "Anfitrión Local") {
+        dataValues = [60, 45, 75, 70, 90, 55];
+      } else if (u.perfil === "Organizador Maestro") {
+        dataValues = [50, 80, 85, 45, 70, 90];
+      } else if (u.perfil === "Comunicador Creativo") {
+        dataValues = [85, 50, 60, 50, 80, 70];
+      }
+
+      radarChartInstance = new Chart(ctx, {
+        type: 'radar',
+        data: {
+          labels: ['Creatividad', 'Datos', 'Trabajo Equipo', 'Entorno', 'Comunicación', 'Logística'],
+          datasets: [{
+            label: 'Tus Habilidades',
+            data: dataValues,
+            backgroundColor: `${details.color}22`,
+            borderColor: details.color,
+            borderWidth: 3,
+            pointBackgroundColor: details.color,
+          }]
+        },
+        options: {
+          scales: {
+            r: {
+              angleLines: { display: true },
+              suggestedMin: 0,
+              suggestedMax: 100,
+              ticks: { display: false }
+            }
+          },
+          plugins: {
+            legend: { display: false }
+          }
+        }
+      });
+    }
+
+    function renderStudentMessages() {
+      const u = state.users.find(usr => usr.email === state.currentUser.email);
+      const list = document.getElementById('student-messages-list');
+      list.innerHTML = '';
+
+      // Generate messages based on student state
+      const messages = [];
+
+      // Always has a welcome message
+      messages.push({
+        from: "Radar T Equipo",
+        body: "¡Te damos la bienvenida a la plataforma, " + u.nombre + "! Completá misiones locales para sumar XP.",
+        time: "Hace 3 días"
+      });
+
+      // If registered with a teacher
+      if (u.docente) {
+        messages.push({
+          from: u.docente,
+          body: "Hola " + u.nombre.split(' ')[0] + ", soy tu tutora de prácticas. He aprobado tu perfil y estaré disponible para validar tu labor.",
+          time: "Hace 2 días"
+        });
+      }
+
+      // If in progress with CONICET
+      if (u.misionesEnCurso.includes(4)) {
+        messages.push({
+          from: "Dr. Alberto Díaz (CONICET)",
+          body: "Hola Valentina, confirmamos que te has sumado al registro GPS. Por favor, coordiná con la escuela las fechas de salida de campo.",
+          time: "Ayer"
+        });
+      }
+
+      // If completed a mission
+      if (u.misionesCompletadas.includes(1)) {
+        messages.push({
+          from: "Avistaje Patagonia SRL",
+          body: "¡Excelente trabajo con el diseño de la guía multilingüe! Tu práctica ha sido certificada en Nivel 1 y evaluada con 5 estrellas.",
+          time: "Hace 1 semana"
+        });
+      }
+
+      messages.forEach(msg => {
+        const card = document.createElement('div');
+        card.className = "bg-white border border-slate-200 rounded-2xl p-4 space-y-1";
+        card.innerHTML = `
+          <div class="flex justify-between items-center text-[10px] font-bold">
+            <span class="text-rtPink">${msg.from}</span>
+            <span class="text-slate-400">${msg.time}</span>
+          </div>
+          <p class="text-xs font-semibold text-slate-700 leading-relaxed">${msg.body}</p>
+        `;
+        list.appendChild(card);
+      });
+    }
+
+    function goToStudentHome() {
+      changeStudentTab('home');
+    }
+
+    // Modal Certificate Viewer
+    function viewCertificateModal(nivel) {
+      const u = state.users.find(usr => usr.email === state.currentUser.email);
+      
+      let levelTitle = "Certificado de Participación";
+      let missionName = "Práctica Profesionalizante";
+      let companyName = "Organización Colaboradora";
+      let companySigner = "Representante";
+
+      if (nivel === 'nivel1') {
+        levelTitle = "Certificado de Participación 🌱";
+        // Find a completed or in progress mission
+        const mId = u.misionesCompletadas[0] || u.misionesEnCurso[0] || 1;
+        const m = state.misiones.find(x => x.id === mId) || state.misiones[0];
+        missionName = m.title;
+        companyName = m.companyName;
+        companySigner = m.companyName === "CONICET Patagonia" ? "Dr. Alberto Díaz" : "María González";
+      } else if (nivel === 'nivel2') {
+        levelTitle = "Certificado de Competencia ⭐";
+        const mId = u.misionesCompletadas[0] || 1;
+        const m = state.misiones.find(x => x.id === mId) || state.misiones[0];
+        missionName = m.title;
+        companyName = m.companyName;
+        companySigner = "Gerente de Operaciones";
+      } else if (nivel === 'nivel3') {
+        levelTitle = "Aval Institucional de Impacto 🏆";
+        missionName = "Programa de Reconversión de Ecoturismo";
+        companyName = "Consorcio de Empresas de Rada Tilly";
+        companySigner = "Intendente Municipal";
+      }
+
+      document.getElementById('cert-modal-level-name').textContent = levelTitle;
+      document.getElementById('cert-modal-student-name').textContent = u.nombre;
+      document.getElementById('cert-modal-mission').textContent = `"${missionName}"`;
+      document.getElementById('cert-modal-company').textContent = companyName;
+      document.getElementById('cert-modal-company-signer').textContent = companySigner;
+
+      document.getElementById('cert-modal').classList.remove('hidden');
+      document.getElementById('cert-modal').classList.add('flex');
+    }
+
+    function closeCertModal() {
+      document.getElementById('cert-modal').classList.add('hidden');
+      document.getElementById('cert-modal').classList.remove('flex');
+    }
+
+
+    // ----------------------------------------------------
+    // COMPANY TABS NAVIGATION
+    // ----------------------------------------------------
+    function changeCompanyTab(tabId) {
+      const tabs = ['inicio', 'publicar', 'misiones', 'postulantes', 'escala'];
+      tabs.forEach(t => {
+        const el = document.getElementById(`c-tab-${t}`);
+        const nav = document.getElementById(`c-nav-${t}`);
+        if (t === tabId) {
+          if (el) el.classList.remove('hidden');
+          if (nav) {
+            nav.className = "w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold bg-white/10 text-white text-left transition-colors";
+          }
+        } else {
+          if (el) el.classList.add('hidden');
+          if (nav) {
+            nav.className = "w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-slate-400 hover:bg-white/5 hover:text-white text-left transition-colors";
+          }
+        }
+      });
+
+      if (tabId === 'inicio') {
+        renderCompanyDashboard();
+      } else if (tabId === 'publicar') {
+        renderCompanyPublish();
+      } else if (tabId === 'misiones') {
+        renderCompanyMissions();
+      } else if (tabId === 'postulantes') {
+        renderCompanyPostulantes();
+      } else if (tabId === 'escala') {
+        // Redirection to the shared scalability view on the desktop
+        document.getElementById('c-tab-inicio').classList.add('hidden');
+        document.getElementById('c-tab-publicar').classList.add('hidden');
+        document.getElementById('c-tab-misiones').classList.add('hidden');
+        document.getElementById('c-tab-postulantes').classList.add('hidden');
+        renderScalabilityView('view-empresa');
+      }
+
+      lucide.createIcons();
+    }
+
+    // ----------------------------------------------------
+    // COMPANY VIEW RENDERERS
+    // ----------------------------------------------------
+    function renderCompanyDashboard() {
+      document.getElementById('c-sidebar-name').textContent = state.currentUser.nombre;
+      
+      const compMissions = state.misiones.filter(m => m.companyName === state.currentUser.nombre);
+      document.getElementById('c-stat-published').textContent = compMissions.length;
+
+      // Calculate active applicants
+      let applicantsCount = 0;
+      let certsCount = 0;
+      const recentTable = document.getElementById('c-recent-applicants-table');
+      recentTable.innerHTML = '';
+
+      state.users.forEach(u => {
+        if (u.rol === 'estudiante') {
+          u.misionesEnCurso.forEach(mId => {
+            const m = state.misiones.find(x => x.id === mId);
+            if (m && m.companyName === state.currentUser.nombre) {
+              applicantsCount++;
+              
+              // Add row to recent table
+              const tr = document.createElement('tr');
+              tr.className = "border-b border-slate-100 hover:bg-slate-50";
+              tr.innerHTML = `
+                <td class="py-3 font-bold text-slate-800">${u.nombre}</td>
+                <td class="py-3 text-slate-600 font-semibold">${m.title}</td>
+                <td class="py-3 text-xs font-bold text-slate-500">${u.perfil}</td>
+                <td class="py-3"><span class="bg-rtYellowLight text-rtYellow px-2 py-0.5 rounded text-xs font-bold">En curso</span></td>
+                <td class="py-3">
+                  <button onclick="openEvaluationModal('${u.email}', ${m.id})" class="bg-rtPink text-white text-xs font-black px-3 py-1.5 rounded-lg btn-3d shadow-[0_2px_0_#9a0050]">Evaluar</button>
+                </td>
+              `;
+              recentTable.appendChild(tr);
+            }
+          });
+
+          u.misionesCompletadas.forEach(mId => {
+            const m = state.misiones.find(x => x.id === mId);
+            if (m && m.companyName === state.currentUser.nombre) {
+              certsCount++;
+            }
+          });
+        }
+      });
+
+      document.getElementById('c-stat-applicants').textContent = applicantsCount;
+      document.getElementById('c-stat-certs').textContent = certsCount;
+
+      if (applicantsCount === 0) {
+        recentTable.innerHTML = `
+          <tr>
+            <td colspan="5" class="py-8 text-center text-slate-400 font-bold">No hay postulantes activos en este momento.</td>
+          </tr>
+        `;
+      }
+    }
+
+    let selectedPublishCategory = null;
+
+    function renderCompanyPublish() {
+      selectedPublishCategory = null;
+      document.getElementById('btn-next-step').disabled = true;
+      document.getElementById('c-publish-step-1').classList.remove('hidden');
+      document.getElementById('c-publish-step-2').classList.add('hidden');
+
+      const grid = document.getElementById('c-categories-grid');
+      grid.innerHTML = '';
+
+      Object.entries(PERFILES_DETALLES).forEach(([catName, details]) => {
+        const card = document.createElement('div');
+        card.className = "border-2 border-slate-200 rounded-2xl p-4 cursor-pointer hover:border-rtPink hover:bg-rtPinkLight transition-all flex flex-col justify-between h-36";
+        card.onclick = () => {
+          document.querySelectorAll('#c-categories-grid > div').forEach(c => c.classList.remove('border-rtPink', 'bg-rtPinkLight'));
+          card.classList.add('border-rtPink', 'bg-rtPinkLight');
+          selectedPublishCategory = catName;
+          document.getElementById('btn-next-step').disabled = false;
+        };
+        card.innerHTML = `
+          <span class="text-3xl">${details.emoji}</span>
+          <div>
+            <h4 class="font-black text-sm text-rtDark">${catName}</h4>
+            <p class="text-[10px] text-slate-400 font-bold mt-1">Desafíos de esta área</p>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    function nextCompanyPublishStep() {
+      if (!selectedPublishCategory) return;
+      document.getElementById('c-publish-step-1').classList.add('hidden');
+      document.getElementById('c-publish-step-2').classList.remove('hidden');
+      
+      // Clear form
+      document.getElementById('c-new-title').value = '';
+      document.getElementById('c-new-desc').value = '';
+      document.getElementById('c-new-slots').value = '2';
+      document.getElementById('c-new-criteria').value = '';
+    }
+
+    function prevCompanyPublishStep() {
+      document.getElementById('c-publish-step-1').classList.remove('hidden');
+      document.getElementById('c-publish-step-2').classList.add('hidden');
+    }
+
+    function publishMission() {
+      const title = document.getElementById('c-new-title').value.trim();
+      const desc = document.getElementById('c-new-desc').value.trim();
+      const grade = document.getElementById('c-new-grade').value;
+      const slots = parseInt(document.getElementById('c-new-slots').value) || 1;
+      const criteria = document.getElementById('c-new-criteria').value.trim();
+
+      if (!title || !desc) {
+        createToast("Debe rellenar los campos obligatorios.", "error");
+        return;
+      }
+
+      const newMission = {
+        id: state.misiones.length + 1,
+        companyName: state.currentUser.nombre,
+        title: title,
+        category: selectedPublishCategory,
+        categoryIcon: selectedPublishCategory === "Marketing Digital" ? "megaphone" : selectedPublishCategory === "Gestión de Datos" ? "database" : selectedPublishCategory === "Atención al Turista" ? "map" : selectedPublishCategory === "Conservación Ambiental" ? "leaf" : "truck",
+        gradeLevel: grade,
+        slots: slots,
+        xpReward: 150 + Math.floor(Math.random() * 100),
+        status: "Abierta",
+        createdAt: "Recién publicado",
+        description: desc,
+        criteria: criteria
+      };
+
+      state.misiones.push(newMission);
+      saveState();
+
+      confetti({
+        particleCount: 150,
+        spread: 80
+      });
+
+      createToast("¡Misión publicada con éxito!", "success");
+      changeCompanyTab('misiones');
+    }
+
+    function renderCompanyMissions() {
+      const compMissions = state.misiones.filter(m => m.companyName === state.currentUser.nombre);
+      const table = document.getElementById('c-my-missions-table');
+      table.innerHTML = '';
+
+      if (compMissions.length === 0) {
+        table.innerHTML = `
+          <tr>
+            <td colspan="5" class="py-8 text-center text-slate-400 font-bold">No has publicado ningún desafío todavía.</td>
+          </tr>
+        `;
+        return;
+      }
+
+      compMissions.forEach(m => {
+        const details = PERFILES_DETALLES[m.category] || PERFILES_DETALLES["Guardián Patagónico"];
+        const tr = document.createElement('tr');
+        tr.className = "border-b border-slate-100 hover:bg-slate-50 font-semibold";
+        tr.innerHTML = `
+          <td class="py-4 font-black text-slate-800">${m.title}</td>
+          <td class="py-4 text-xs font-bold"><span class="px-2 py-0.5 rounded-full" style="background-color: ${details.colorBg}; color: ${details.color};">${m.category}</span></td>
+          <td class="py-4 text-slate-600">${m.gradeLevel}</td>
+          <td class="py-4 text-slate-600">${m.slots}</td>
+          <td class="py-4"><span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-xs font-bold">${m.status}</span></td>
+        `;
+        table.appendChild(tr);
+      });
+    }
+
+    function renderCompanyPostulantes() {
+      const table = document.getElementById('c-postulantes-table');
+      table.innerHTML = '';
+      
+      let hasPostulantes = false;
+
+      state.users.forEach(u => {
+        if (u.rol === 'estudiante') {
+          u.misionesEnCurso.forEach(mId => {
+            const m = state.misiones.find(x => x.id === mId);
+            if (m && m.companyName === state.currentUser.nombre) {
+              hasPostulantes = true;
+              const tr = document.createElement('tr');
+              tr.className = "border-b border-slate-100 hover:bg-slate-50";
+              tr.innerHTML = `
+                <td class="py-3 font-bold text-slate-800">${u.nombre}</td>
+                <td class="py-3 font-semibold text-slate-600">${u.curso}</td>
+                <td class="py-3 text-slate-700 font-bold">${m.title}</td>
+                <td class="py-3 text-xs font-bold text-slate-500">${u.perfil}</td>
+                <td class="py-3"><span class="bg-rtYellowLight text-rtYellow px-2 py-0.5 rounded text-xs font-bold">En curso</span></td>
+                <td class="py-3">
+                  <button onclick="openEvaluationModal('${u.email}', ${m.id})" class="bg-rtPink text-white text-xs font-black px-3 py-1.5 rounded-lg btn-3d shadow-[0_2px_0_#9a0050]">Evaluar</button>
+                </td>
+              `;
+              table.appendChild(tr);
+            }
+          });
+
+          // Also list completed ones
+          u.misionesCompletadas.forEach(mId => {
+            const m = state.misiones.find(x => x.id === mId);
+            if (m && m.companyName === state.currentUser.nombre) {
+              hasPostulantes = true;
+              const tr = document.createElement('tr');
+              tr.className = "border-b border-slate-100 hover:bg-slate-50 opacity-75";
+              tr.innerHTML = `
+                <td class="py-3 font-bold text-slate-800">${u.nombre}</td>
+                <td class="py-3 font-semibold text-slate-600">${u.curso}</td>
+                <td class="py-3 text-slate-700 font-bold">${m.title}</td>
+                <td class="py-3 text-xs font-bold text-slate-500">${u.perfil}</td>
+                <td class="py-3"><span class="bg-rtGreenLight text-rtGreen px-2 py-0.5 rounded text-xs font-bold">Aprobado</span></td>
+                <td class="py-3"><span class="text-xs font-bold text-slate-400">Evaluado</span></td>
+              `;
+              table.appendChild(tr);
+            }
+          });
+        }
+      });
+
+      if (!hasPostulantes) {
+        table.innerHTML = `
+          <tr>
+            <td colspan="6" class="py-8 text-center text-slate-400 font-bold">No hay postulaciones registradas.</td>
+          </tr>
+        `;
+      }
+    }
+
+    let activeEvalStudentEmail = null;
+    let activeEvalMissionId = null;
+    let activeEvalRating = 0;
+
+    function openEvaluationModal(studentEmail, missionId) {
+      const student = state.users.find(u => u.email === studentEmail);
+      const mission = state.misiones.find(m => m.id === missionId);
+
+      activeEvalStudentEmail = studentEmail;
+      activeEvalMissionId = missionId;
+      activeEvalRating = 0;
+
+      document.getElementById('eval-student-name').textContent = student.nombre;
+      document.getElementById('eval-mission-title').textContent = mission.title;
+      document.getElementById('eval-feedback').value = '';
+      document.getElementById('eval-approve-level2').checked = true;
+
+      // Reset stars
+      setEvalRating(0);
+
+      document.getElementById('evaluate-modal').classList.remove('hidden');
+      document.getElementById('evaluate-modal').classList.add('flex');
+    }
+
+    function setEvalRating(rating) {
+      activeEvalRating = rating;
+      const stars = document.getElementById('eval-stars-container').children;
+      for (let i = 0; i < stars.length; i++) {
+        if (i < rating) {
+          stars[i].classList.remove('text-slate-300');
+          stars[i].classList.add('text-rtYellow');
+        } else {
+          stars[i].classList.add('text-slate-300');
+          stars[i].classList.remove('text-rtYellow');
+        }
+      }
+    }
+
+    function closeEvaluateModal() {
+      document.getElementById('evaluate-modal').classList.add('hidden');
+      document.getElementById('evaluate-modal').classList.remove('flex');
+    }
+
+    function submitEvaluation() {
+      if (activeEvalRating === 0) {
+        createToast("Debe asignar una calificación de estrellas.", "error");
+        return;
+      }
+
+      const student = state.users.find(u => u.email === activeEvalStudentEmail);
+      
+      // Move mission from en curso to completada (conceptually evaluated)
+      student.misionesEnCurso = student.misionesEnCurso.filter(id => id !== activeEvalMissionId);
+      if (!student.misionesCompletadas.includes(activeEvalMissionId)) {
+        student.misionesCompletadas.push(activeEvalMissionId);
+      }
+
+      // Add XP: +150 for completion + 200 for company evaluation
+      student.xp += 350;
+
+      // Check level up
+      if (student.xp >= 1500) {
+        student.nivel = 3;
+      } else if (student.xp >= 500) {
+        student.nivel = 2;
+      }
+
+      // Approve level 2 certificate if checked
+      const approveL2 = document.getElementById('eval-approve-level2').checked;
+      if (approveL2) {
+        student.certificados.nivel1 = "desbloqueado"; // automatically ensure level 1 is done
+        student.certificados.nivel2 = "desbloqueado";
+        student.xp += 500; // Nivel 2 unlocks 500 XP
+      }
+
+      saveState();
+      closeEvaluateModal();
+      createToast("Evaluación registrada correctamente.", "success");
+
+      // Reload dashboard
+      renderCompanyDashboard();
+      renderCompanyPostulantes();
+    }
+
+
+    // ----------------------------------------------------
+    // DOCENTE TABS NAVIGATION
+    // ----------------------------------------------------
+    let activeDocenteCourse = "4°B";
+
+    function changeDocenteTab(tabId) {
+      const tabs = ['alumnos', 'intereses', 'cronograma', 'validaciones', 'escala'];
+      tabs.forEach(t => {
+        const el = document.getElementById(`d-tab-${t}`);
+        const nav = document.getElementById(`d-nav-${t}`);
+        if (t === tabId) {
+          if (el) el.classList.remove('hidden');
+          if (nav) {
+            nav.className = "w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold bg-white/10 text-white text-left transition-colors";
+          }
+        } else {
+          if (el) el.classList.add('hidden');
+          if (nav) {
+            nav.className = "w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-slate-400 hover:bg-white/5 hover:text-white text-left transition-colors";
+          }
+        }
+      });
+
+      if (tabId === 'alumnos') {
+        renderDocenteAlumnos();
+      } else if (tabId === 'intereses') {
+        renderDocenteIntereses();
+      } else if (tabId === 'cronograma') {
+        renderDocenteCronograma();
+      } else if (tabId === 'validaciones') {
+        renderDocenteValidaciones();
+      } else if (tabId === 'escala') {
+        // Redirect to scale page in desktop dashboard
+        document.getElementById('d-tab-alumnos').classList.add('hidden');
+        document.getElementById('d-tab-intereses').classList.add('hidden');
+        document.getElementById('d-tab-cronograma').classList.add('hidden');
+        document.getElementById('d-tab-validaciones').classList.add('hidden');
+        renderScalabilityView('view-docente');
+      }
+
+      lucide.createIcons();
+    }
+
+    function renderDocenteAlumnos() {
+      // Set current class badge
+      document.getElementById('d-current-class-badge').textContent = `Curso: ${activeDocenteCourse}`;
+      
+      // Populate class selector sidebar
+      const classListContainer = document.getElementById('docente-class-selector-list');
+      classListContainer.innerHTML = '';
+      const courses = ["4°B", "5°A", "3°C"];
+      courses.forEach(c => {
+        const active = c === activeDocenteCourse;
+        const btn = document.createElement('button');
+        btn.className = `w-full text-left px-4 py-2 rounded-xl transition-all ${active ? 'bg-rtPurple text-white' : 'text-slate-400 hover:bg-white/5 hover:text-white'}`;
+        btn.textContent = `División ${c}`;
+        btn.onclick = () => {
+          activeDocenteCourse = c;
+          renderDocenteAlumnos();
+          if (document.getElementById('d-tab-intereses').classList.contains('hidden') === false) {
+            renderDocenteIntereses();
+          }
+        };
+        classListContainer.appendChild(btn);
+      });
+
+      // Filter students by activeDocenteCourse
+      const students = state.users.filter(u => u.rol === 'estudiante' && u.curso === activeDocenteCourse);
+      const table = document.getElementById('d-students-table');
+      table.innerHTML = '';
+
+      if (students.length === 0) {
+        table.innerHTML = `
+          <tr>
+            <td colspan="5" class="py-8 text-center text-slate-400 font-bold">No hay estudiantes registrados en este curso.</td>
+          </tr>
+        `;
+        return;
+      }
+
+      students.forEach(st => {
+        // active mission label
+        let missionLabel = "Ninguna";
+        let statusLabel = "Inactivo";
+        let statusClass = "bg-slate-100 text-slate-500";
+        
+        if (st.misionesEnCurso.length > 0) {
+          const m = state.misiones.find(x => x.id === st.misionesEnCurso[0]);
+          if (m) {
+            missionLabel = m.title;
+            statusLabel = "En curso";
+            statusClass = "bg-rtYellowLight text-rtYellow border border-rtYellow/50";
+          }
+        } else if (st.misionesCompletadas.length > 0) {
+          const m = state.misiones.find(x => x.id === st.misionesCompletadas[st.misionesCompletadas.length - 1]);
+          if (m) {
+            missionLabel = m.title;
+            statusLabel = "Completada";
+            statusClass = "bg-rtGreenLight text-rtGreen border border-rtGreen/50";
+          }
+        }
+
+        const tr = document.createElement('tr');
+        tr.className = "border-b border-slate-100 hover:bg-slate-50";
+        tr.innerHTML = `
+          <td class="py-3 font-bold text-slate-800">${st.nombre}</td>
+          <td class="py-3 text-xs font-bold text-slate-600">${st.perfil}</td>
+          <td class="py-3 text-xs text-slate-500 max-w-[200px] truncate">${missionLabel}</td>
+          <td class="py-3"><span class="px-2 py-0.5 rounded text-xs font-bold ${statusClass}">${statusLabel}</span></td>
+          <td class="py-3">
+            <button onclick="viewStudentSheet('${st.email}')" class="bg-rtPurple text-white text-xs font-black px-3 py-1.5 rounded-lg btn-3d shadow-[0_2px_0_#623475]">Ver Ficha</button>
+          </td>
+        `;
+        table.appendChild(tr);
+      });
+    }
+
+    let activeSheetStudentEmail = null;
+    let sheetRadarChart = null;
+
+    function viewStudentSheet(email) {
+      const st = state.users.find(u => u.email === email);
+      activeSheetStudentEmail = email;
+
+      document.getElementById('d-sheet-name').textContent = st.nombre;
+      document.getElementById('d-sheet-email').textContent = st.email;
+      document.getElementById('d-sheet-level').textContent = st.nivel;
+      document.getElementById('d-sheet-xp').textContent = st.xp;
+      document.getElementById('d-sheet-profile').textContent = `${st.perfil}`;
+      
+      const notesArea = document.getElementById('d-sheet-notes');
+      notesArea.value = st.notasDocente || '';
+
+      document.getElementById('d-sheet-content').classList.remove('hidden');
+
+      // Render mini radar chart
+      const ctx = document.getElementById('d-student-radar').getContext('2d');
+      if (sheetRadarChart) {
+        sheetRadarChart.destroy();
+      }
+
+      const details = PERFILES_DETALLES[st.perfil] || PERFILES_DETALLES["Guardián Patagónico"];
+      let dataValues = [60, 60, 60, 60, 60, 60];
+      if (st.perfil === "Guardián Patagónico") {
+        dataValues = [40, 60, 80, 95, 50, 45];
+      } else if (st.perfil === "Creador Digital") {
+        dataValues = [95, 40, 50, 40, 85, 75];
+      } else if (st.perfil === "Analista de Datos") {
+        dataValues = [45, 95, 40, 30, 50, 80];
+      } else if (st.perfil === "Anfitrión Local") {
+        dataValues = [60, 45, 75, 70, 90, 55];
+      } else if (st.perfil === "Organizador Maestro") {
+        dataValues = [50, 80, 85, 45, 70, 90];
+      } else if (st.perfil === "Comunicador Creativo") {
+        dataValues = [85, 50, 60, 50, 80, 70];
+      }
+
+      sheetRadarChart = new Chart(ctx, {
+        type: 'radar',
+        data: {
+          labels: ['Creat.', 'Datos', 'Eq.', 'Ent.', 'Com.', 'Log.'],
+          datasets: [{
+            data: dataValues,
+            backgroundColor: `${details.color}22`,
+            borderColor: details.color,
+            borderWidth: 2,
+            pointBackgroundColor: details.color,
+          }]
+        },
+        options: {
+          scales: {
+            r: {
+              angleLines: { display: false },
+              suggestedMin: 0,
+              suggestedMax: 100,
+              ticks: { display: false }
+            }
+          },
+          plugins: {
+            legend: { display: false }
+          }
+        }
+      });
+    }
+
+    function saveDocenteNotes() {
+      if (!activeSheetStudentEmail) return;
+      const notes = document.getElementById('d-sheet-notes').value;
+      const student = state.users.find(u => u.email === activeSheetStudentEmail);
+      student.notasDocente = notes;
+      saveState();
+    }
+
+    let interestsBarChartInstance = null;
+
+    function renderDocenteIntereses() {
+      const ctx = document.getElementById('d-interests-bar-chart').getContext('2d');
+      if (interestsBarChartInstance) {
+        interestsBarChartInstance.destroy();
+      }
+
+      // Count profiles in active class
+      const counts = {
+        "Guardián Patagónico": 0,
+        "Creador Digital": 0,
+        "Analista de Datos": 0,
+        "Anfitrión Local": 0,
+        "Organizador Maestro": 0,
+        "Comunicador Creativo": 0
+      };
+
+      const students = state.users.filter(u => u.rol === 'estudiante' && u.curso === activeDocenteCourse);
+      students.forEach(st => {
+        if (counts[st.perfil] !== undefined) {
+          counts[st.perfil]++;
+        }
+      });
+
+      // If activeDocenteCourse is 4°B and counts are empty, mock some distribution
+      if (activeDocenteCourse === '4°B') {
+        counts["Guardián Patagónico"] = 8;
+        counts["Creador Digital"] = 6;
+        counts["Analista de Datos"] = 4;
+        counts["Anfitrión Local"] = 3;
+        counts["Organizador Maestro"] = 2;
+        counts["Comunicador Creativo"] = 2;
+      } else if (activeDocenteCourse === '5°A') {
+        counts["Guardián Patagónico"] = 3;
+        counts["Creador Digital"] = 4;
+        counts["Organizador Maestro"] = 2;
+      }
+
+      const labels = Object.keys(counts);
+      const data = Object.values(counts);
+
+      interestsBarChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels.map(l => l.split(' ')[0]), // short labels
+          datasets: [{
+            label: 'Alumnos',
+            data: data,
+            backgroundColor: [
+              '#4BB543', '#E91B8C', '#1B96D5', '#F7C022', '#9B59B6', '#1BBFBF'
+            ],
+            borderRadius: 8,
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { display: false }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: { stepSize: 1 }
+            }
+          }
+        }
+      });
+    }
+
+    function renderDocenteCronograma() {
+      const table = document.getElementById('d-cronograma-table');
+      table.innerHTML = '';
+
+      // Merge mock data and actual active students in the selected class
+      const students = state.users.filter(u => u.rol === 'estudiante' && u.curso === activeDocenteCourse);
+      let listData = [];
+
+      students.forEach(st => {
+        if (st.misionesEnCurso.length > 0) {
+          st.misionesEnCurso.forEach(mId => {
+            const m = state.misiones.find(x => x.id === mId);
+            if (m) {
+              // Determine status traffic light
+              let color = "verde";
+              let label = "🟢 En tiempo";
+              let days = 15;
+              
+              if (st.nombre === "Emilia Rodríguez") {
+                color = "rojo";
+                label = "🔴 Urgente";
+                days = 3;
+              } else if (st.nombre === "Lucas Fernández") {
+                color = "amarillo";
+                label = "🟡 Revisar";
+                days = 13;
+              }
+
+              listData.push({
+                nombre: st.nombre,
+                titulo: m.title,
+                inicio: "15/05/2026",
+                limite: "30/06/2026",
+                dias: days,
+                label: label,
+                colorClass: color === 'rojo' ? 'text-red-600 bg-red-50' : color === 'amarillo' ? 'text-yellow-600 bg-yellow-50' : 'text-green-600 bg-green-50'
+              });
+            }
+          });
+        }
+      });
+
+      if (listData.length === 0) {
+        table.innerHTML = `
+          <tr>
+            <td colspan="6" class="py-8 text-center text-slate-400 font-bold">No hay prácticas calendarizadas en este curso.</td>
+          </tr>
+        `;
+        return;
+      }
+
+      listData.forEach(item => {
+        const tr = document.createElement('tr');
+        tr.className = "border-b border-slate-100 hover:bg-slate-50 font-semibold";
+        tr.innerHTML = `
+          <td class="py-4 font-black text-slate-800">${item.nombre}</td>
+          <td class="py-4 text-xs text-slate-600">${item.titulo}</td>
+          <td class="py-4 text-slate-500 text-xs">${item.inicio}</td>
+          <td class="py-4 text-slate-500 text-xs">${item.limite}</td>
+          <td class="py-4 font-black text-xs">${item.dias} días</td>
+          <td class="py-4"><span class="px-2.5 py-1 rounded-full text-xs font-black ${item.colorClass}">${item.label}</span></td>
+        `;
+        table.appendChild(tr);
+      });
+    }
+
+    function renderDocenteValidaciones() {
+      const container = document.getElementById('d-validaciones-container');
+      container.innerHTML = '';
+
+      let hasValidations = false;
+      const students = state.users.filter(u => u.rol === 'estudiante' && u.curso === activeDocenteCourse);
+
+      students.forEach(st => {
+        if (st.misionesEnCurso.length > 0) {
+          st.misionesEnCurso.forEach(mId => {
+            const m = state.misiones.find(x => x.id === mId);
+            if (m) {
+              hasValidations = true;
+              const card = document.createElement('div');
+              card.className = "bg-white border-2 border-slate-900 rounded-3xl p-5 shadow-[4px_4px_0px_#1a1a2e] space-y-4 flex flex-col justify-between";
+              card.innerHTML = `
+                <div>
+                  <div class="flex justify-between items-start">
+                    <span class="text-xs font-black text-rtPurple">SOLICITUD DE EVALUACIÓN</span>
+                    <span class="text-[10px] font-bold text-slate-400">Pendiente</span>
+                  </div>
+                  <h4 class="font-black text-base text-rtDark mt-2">${st.nombre}</h4>
+                  <p class="text-xs font-bold text-slate-500">Curso: ${st.curso}</p>
+                  <div class="bg-slate-50 rounded-xl p-3 border border-slate-100 mt-3">
+                    <p class="text-xs font-black text-slate-700">${m.title}</p>
+                    <p class="text-[10px] text-slate-400 font-bold">${m.companyName}</p>
+                  </div>
+                </div>
+                <button onclick="openValidateModal('${st.email}', ${m.id})" class="w-full bg-rtPurple text-white font-black py-3 rounded-xl btn-3d shadow-[0_3px_0_#623475] text-xs mt-4">
+                  Firmar y Validar Práctica ✍️
+                </button>
+              `;
+              container.appendChild(card);
+            }
+          });
+        }
+      });
+
+      if (!hasValidations) {
+        container.innerHTML = `
+          <div class="col-span-2 bg-white border-2 border-slate-900 rounded-3xl p-8 text-center text-slate-400 font-bold">
+            No hay solicitudes de validación pendientes para esta división.
+          </div>
+        `;
+      }
+    }
+
+    let activeValStudentEmail = null;
+    let activeValMissionId = null;
+
+    function openValidateModal(studentEmail, missionId) {
+      const student = state.users.find(u => u.email === studentEmail);
+      const mission = state.misiones.find(m => m.id === missionId);
+
+      activeValStudentEmail = studentEmail;
+      activeValMissionId = missionId;
+
+      document.getElementById('val-student-name').textContent = student.nombre;
+      document.getElementById('val-mission-title').textContent = mission.title;
+
+      document.getElementById('validate-modal').classList.remove('hidden');
+      document.getElementById('validate-modal').classList.add('flex');
+    }
+
+    function closeValidateModal() {
+      document.getElementById('validate-modal').classList.add('hidden');
+      document.getElementById('validate-modal').classList.remove('flex');
+    }
+
+    function submitTeacherValidation() {
+      const student = state.users.find(u => u.email === activeValStudentEmail);
+      
+      // Move mission to completed
+      student.misionesEnCurso = student.misionesEnCurso.filter(id => id !== activeValMissionId);
+      if (!student.misionesCompletadas.includes(activeValMissionId)) {
+        student.misionesCompletadas.push(activeValMissionId);
+      }
+
+      // Unlock Nivel 1 Certificate
+      student.certificados.nivel1 = "desbloqueado";
+      student.xp += 450; // Give XP (+150 for completion, +300 for Cert Nivel 1)
+
+      // Level check
+      if (student.xp >= 1500) {
+        student.nivel = 3;
+      } else if (student.xp >= 500) {
+        student.nivel = 2;
+      }
+
+      saveState();
+      closeValidateModal();
+      
+      // Trigger Confetti
+      confetti({
+        particleCount: 120,
+        spread: 70
+      });
+
+      createToast("¡Práctica validada y Certificado Nivel 1 firmado!", "success");
+
+      // Reload
+      renderDocenteAlumnos();
+      renderDocenteValidaciones();
+      renderDocenteCronograma();
+    }
+
+
+    // ----------------------------------------------------
+    // SCALABILITY MAP & INTERACTIVITY
+    // ----------------------------------------------------
+    let currentMapOriginView = 'view-landing';
+
+    function renderScalabilityView(originViewId) {
+      currentMapOriginView = originViewId;
+      
+      // Hide all main containers
+      document.getElementById('view-landing').classList.add('hidden');
+      document.getElementById('view-student').classList.add('hidden');
+      document.getElementById('view-empresa').classList.add('hidden');
+      document.getElementById('view-docente').classList.add('hidden');
+
+      // Render the dedicated scalability/map section (which has been designed within the landing-scale view)
+      showLandingSection('landing-scale');
+
+      // Add a floating back button at the top if coming from a dashboard
+      if (originViewId !== 'view-landing') {
+        const backBtnContainer = document.createElement('div');
+        backBtnContainer.id = "map-back-btn-container";
+        backBtnContainer.className = "fixed top-20 left-6 z-40";
+        backBtnContainer.innerHTML = `
+          <button onclick="goBackFromMap()" class="bg-rtDark text-white border-2 border-slate-900 px-4 py-2.5 rounded-xl font-bold btn-3d shadow-[0_3px_0_#000] text-xs flex items-center gap-1">
+            <i data-lucide="arrow-left" class="w-4 h-4"></i> Volver al Panel
+          </button>
+        `;
+        document.body.appendChild(backBtnContainer);
+        lucide.createIcons();
+      }
+    }
+
+    function goBackFromMap() {
+      // Remove back button
+      const btn = document.getElementById('map-back-btn-container');
+      if (btn) btn.remove();
+
+      // Show original view
+      document.getElementById('view-landing').classList.add('hidden');
+      document.getElementById(currentMapOriginView).classList.remove('hidden');
+      
+      if (currentMapOriginView === 'view-empresa') {
+        changeCompanyTab('inicio');
+      } else if (currentMapOriginView === 'view-docente') {
+        changeDocenteTab('alumnos');
+      }
+    }
+
+    function selectMapPin(pinId) {
+      const data = MAP_PIN_DETAILS[pinId];
+      if (!data) return;
+
+      document.getElementById('pin-title').textContent = data.title;
+      document.getElementById('pin-desc').textContent = data.desc;
+      document.getElementById('pin-sector').textContent = data.sector;
+      document.getElementById('pin-escuelas').textContent = data.escuelas;
+
+      const badge = document.getElementById('pin-badge');
+      badge.textContent = data.badge;
+      if (pinId === 'rada-tilly') {
+        badge.className = "bg-rtPinkLight text-rtPink text-xs font-bold px-3 py-1 rounded-full";
+      } else {
+        badge.className = "bg-rtYellowLight text-rtYellow text-xs font-bold px-3 py-1 rounded-full border border-rtYellow/30";
+      }
+
+      // Highlight pin in SVG
+      const map = document.getElementById('argentina-map');
+      map.querySelectorAll('circle').forEach(c => {
+        c.setAttribute('stroke', 'none');
+        c.setAttribute('stroke-width', '0');
+      });
+      const selectedCircle = document.getElementById(`pin-${pinId}`);
+      if (selectedCircle) {
+        selectedCircle.setAttribute('stroke', '#1A1A2E');
+        selectedCircle.setAttribute('stroke-width', '3');
+      }
+    }
+
+
+    // ----------------------------------------------------
+    // TOAST NOTIFICATIONS UTILITY
+    // ----------------------------------------------------
+    function createToast(message, type = "success") {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      
+      let borderCol = "border-rtGreen";
+      let textCol = "text-rtGreen";
+      let bgCol = "bg-rtGreenLight";
+      let icon = "check-circle";
+
+      if (type === "error") {
+        borderCol = "border-red-500";
+        textCol = "text-red-500";
+        bgCol = "bg-red-50";
+        icon = "alert-triangle";
+      } else if (type === "info") {
+        borderCol = "border-rtBlue";
+        textCol = "text-rtBlue";
+        bgCol = "bg-rtBlueLight";
+        icon = "info";
+      }
+
+      toast.className = `flex items-center gap-3 border-2 ${borderCol} ${bgCol} ${textCol} px-5 py-3 rounded-2xl shadow-lg font-black text-sm pointer-events-auto transition-all duration-300 transform translate-x-20 opacity-0`;
+      toast.innerHTML = `<i data-lucide="${icon}" class="w-5 h-5"></i> <span>${message}</span>`;
+      
+      container.appendChild(toast);
+      
+      // Animate in
+      setTimeout(() => {
+        toast.classList.remove('translate-x-20', 'opacity-0');
+      }, 50);
+
+      // Animate out and remove
+      setTimeout(() => {
+        toast.classList.add('translate-x-20', 'opacity-0');
+        setTimeout(() => toast.remove(), 300);
+      }, 3500);
+
+      lucide.createIcons();
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Radar T — Piloto 2026</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: #FFFFFF;
+            color: #1A1A2E;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .btn-3d {
+            transition: all 0.1s ease;
+        }
+        .btn-3d:active {
+            transform: translateY(3px);
+            box-shadow: 0 1px 0 currentColor;
+        }
+        .rainbow-bar {
+            background: linear-gradient(90deg, #E91B8C, #F7C022, #4BB543, #1B96D5, #9B59B6);
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .fade-in {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes confetti {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(-50px) rotate(360deg); opacity: 0; }
+        }
+        .confetti {
+            animation: confetti 0.6s ease-out forwards;
+            position: fixed;
+        }
+        .progress-bar {
+            background: linear-gradient(90deg, #E91B8C, #F7C022, #4BB543);
+            transition: width 0.6s ease;
+        }
+        .filter-pill {
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        .filter-pill.active {
+            transform: scale(1.05);
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.7; }
+        }
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .slide-up {
+            animation: slideUp 0.6s ease-out;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between">
+
+    <div class="rainbow-bar h-1.5 w-full fixed top-0 z-50"></div>
+
+    <main class="flex-grow w-full max-w-[430px] mx-auto pt-8 pb-24 px-5 fade-in relative">
+
+        <!-- PANTALLA SPLASH / BIENVENIDA -->
+        <div id="screen-splash" class="flex flex-col items-center justify-center min-h-screen space-y-8">
+            <div class="text-center space-y-8 slide-up">
+                <!-- Logo animado con letras multicolor -->
+                <div class="space-y-6">
+                    <div class="text-6xl font-900 tracking-tight">
+                        <span class="text-[#E91B8C]">R</span><span class="text-[#F7C022]">a</span><span class="text-[#4BB543]">d</span><span class="text-[#1B96D5]">a</span><span class="text-[#9B59B6]">r</span> <span class="text-[#1BBFBF]">T</span>
+                    </div>
+                    
+                    <!-- Ícono de radar con animación de pulso -->
+                    <div class="flex justify-center">
+                        <div class="text-7xl pulse">📡</div>
+                    </div>
+                </div>
+
+                <!-- Tagline -->
+                <div class="space-y-3">
+                    <p class="text-2xl font-900 text-[#1A1A2E]">¿Listo para tu primera misión real?</p>
+                    <p class="text-base font-bold text-gray-500">Conecta con empresas locales de Rada Tilly y ganás experiencia real</p>
+                </div>
+
+                <!-- Botón de entrada -->
+                <button onclick="changeScreen('screen-login')" class="inline-block bg-[#E91B8C] text-white font-900 py-4 px-12 rounded-2xl text-lg btn-3d" style="box-shadow: 0 4px 0 #b3005c;">
+                    ¡Entrar! →
+                </button>
+            </div>
+
+            <!-- Badge inferior -->
+            <div class="absolute bottom-12 text-center space-y-4">
+                <span class="inline-block bg-[#E3F4FC] text-[#1B96D5] font-bold px-4 py-1.5 rounded-full text-xs">
+                    Piloto 2026 · Rada Tilly 🐳
+                </span>
+            </div>
+        </div>
+
+        <!-- PANTALLA DE LOGIN / SELECCIÓN -->
+        <div id="screen-login" class="space-y-8 mt-10">
+            <div class="text-center space-y-4">
+                <span class="bg-[#E3F4FC] text-[#1B96D5] font-bold px-4 py-1.5 rounded-full text-xs">
+                    Piloto 2026 · Rada Tilly 🐳
+                </span>
+                <h1 class="text-5xl font-900 tracking-tight">
+                    <span class="text-[#E91B8C]">R</span><span class="text-[#F7C022]">a</span><span class="text-[#4BB543]">d</span><span class="text-[#1B96D5]">a</span><span class="text-[#9B59B6]">r</span> <span class="text-[#1BBFBF]">T</span>
+                </h1>
+                <p class="text-gray-500 font-bold">Tu primera misión real te espera.</p>
+            </div>
+            
+            <div class="space-y-4">
+                <button onclick="changeScreen('screen-registro-datos')" class="w-full bg-[#FDE8F4] border-2 border-[#E91B8C] text-[#E91B8C] font-900 py-4 px-6 rounded-2xl text-lg btn-3d flex items-center justify-between" style="box-shadow: 0 4px 0 #E91B8C;">
+                    <span class="flex items-center gap-3"><span class="text-2xl">🎒</span> Soy Estudiante</span>
+                    <span>→</span>
+                </button>
+                <button onclick="handleLoginDemo('empresa')" class="w-full bg-[#E3F4FC] border-2 border-[#1B96D5] text-[#1B96D5] font-900 py-4 px-6 rounded-2xl text-lg btn-3d flex items-center justify-between" style="box-shadow: 0 4px 0 #1B96D5;">
+                    <span class="flex items-center gap-3"><span class="text-2xl">🏢</span> Soy Empresa</span>
+                    <span>→</span>
+                </button>
+                <button onclick="handleLoginDemo('docente')" class="w-full bg-[#F2EAF8] border-2 border-[#9B59B6] text-[#9B59B6] font-900 py-4 px-6 rounded-2xl text-lg btn-3d flex items-center justify-between" style="box-shadow: 0 4px 0 #9B59B6;">
+                    <span class="flex items-center gap-3"><span class="text-2xl">🏫</span> Soy Docente</span>
+                    <span>→</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- PANTALLA REGISTRO: PASO 1 - DATOS BÁSICOS -->
+        <div id="screen-registro-datos" class="hidden space-y-6">
+            <div class="flex items-center gap-3 mb-6">
+                <button onclick="changeScreen('screen-login')" class="text-gray-400 font-bold text-xl">←</button>
+                <div class="flex gap-1">
+                    <div class="w-6 h-2 rounded-full bg-[#E91B8C]"></div>
+                    <div class="w-2 h-2 rounded-full bg-gray-200"></div>
+                    <div class="w-2 h-2 rounded-full bg-gray-200"></div>
+                </div>
+            </div>
+
+            <div class="space-y-2">
+                <h2 class="text-3xl font-900 text-[#1A1A2E]">Contanos de vos 👋</h2>
+                <p class="text-gray-500 font-bold text-sm">Información básica para tu perfil.</p>
+            </div>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-2">Nombre y Apellido</label>
+                    <input type="text" id="reg-nombre" placeholder="Ej: Valentina López" class="w-full border-2 border-[#EDEFF2] rounded-2xl px-4 py-3 font-bold focus:outline-none focus:border-[#E91B8C]">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-2">Año que cursás</label>
+                    <select id="reg-ano" class="w-full border-2 border-[#EDEFF2] rounded-2xl px-4 py-3 font-bold focus:outline-none focus:border-[#E91B8C]">
+                        <option value="">Selecciona tu año</option>
+                        <option value="3">3er año</option>
+                        <option value="4">4to año</option>
+                        <option value="5">5to año</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-2">Correo electrónico</label>
+                    <input type="email" id="reg-email" placeholder="tu@correo.com" class="w-full border-2 border-[#EDEFF2] rounded-2xl px-4 py-3 font-bold focus:outline-none focus:border-[#E91B8C]">
+                </div>
+
+                <div class="bg-[#FEF8E3] border-2 border-[#F7C022] rounded-2xl p-4 mt-6">
+                    <p class="text-xs font-bold text-gray-700">
+                        ⚠️ <strong>Privacidad:</strong> Radar T es una plataforma educativa para estudiantes de 15 a 18 años. No compartimos tus datos con terceros. Tu email se usa solo para certificados y notificaciones. Si tenés menos de 16 años, consultá con un adulto de confianza.
+                    </p>
+                </div>
+
+                <label class="flex items-center gap-3 mt-4 cursor-pointer">
+                    <input type="checkbox" id="reg-acepta" class="w-5 h-5 rounded border-2 border-[#EDEFF2]">
+                    <span class="text-xs font-bold text-gray-700">Leí y acepto las condiciones de uso</span>
+                </label>
+
+                <button onclick="goToStep2Registro()" class="w-full bg-[#E91B8C] text-white font-900 py-4 px-6 rounded-2xl text-lg btn-3d mt-6" style="box-shadow: 0 4px 0 #b3005c;">
+                    Continuar →
+                </button>
+            </div>
+        </div>
+
+        <!-- PANTALLA REGISTRO: PASO 2 - TEST VOCACIONAL -->
+        <div id="screen-registro-vocacional" class="hidden space-y-6">
+            <div class="flex items-center gap-3 mb-6">
+                <button onclick="changeScreen('screen-registro-datos')" class="text-gray-400 font-bold text-xl">←</button>
+                <div class="flex gap-1">
+                    <div class="w-2 h-2 rounded-full bg-[#E91B8C]"></div>
+                    <div class="w-6 h-2 rounded-full bg-[#E91B8C]"></div>
+                    <div class="w-2 h-2 rounded-full bg-gray-200"></div>
+                </div>
+            </div>
+
+            <div class="space-y-2">
+                <h2 class="text-3xl font-900 text-[#1A1A2E]">¿Qué te copa? 🔍</h2>
+                <p class="text-gray-500 font-bold text-sm">Ayúdanos a conocer tus intereses.</p>
+            </div>
+
+            <div class="space-y-3 mt-6">
+                <button onclick="finishTest('Creador Digital')" class="w-full text-left bg-white border-2 border-[#EDEFF2] hover:border-[#E91B8C] hover:bg-[#FDE8F4] p-4 rounded-2xl font-bold text-gray-700 transition-colors">
+                    📱 Crear contenido para redes
+                </button>
+                <button onclick="finishTest('Guardián Patagónico')" class="w-full text-left bg-white border-2 border-[#EDEFF2] hover:border-[#4BB543] hover:bg-[#E8F8E7] p-4 rounded-2xl font-bold text-gray-700 transition-colors">
+                    🐳 Cuidar el medioambiente
+                </button>
+                <button onclick="finishTest('Anfitrión Local')" class="w-full text-left bg-white border-2 border-[#EDEFF2] hover:border-[#F7C022] hover:bg-[#FEF8E3] p-4 rounded-2xl font-bold text-gray-700 transition-colors">
+                    🗺️ Ayudar a turistas o visitantes
+                </button>
+                <button onclick="finishTest('Analista de Datos')" class="w-full text-left bg-white border-2 border-[#EDEFF2] hover:border-[#1B96D5] hover:bg-[#E3F4FC] p-4 rounded-2xl font-bold text-gray-700 transition-colors">
+                    📊 Organizar datos y tecnología
+                </button>
+                <button onclick="finishTest('Organizador Maestro')" class="w-full text-left bg-white border-2 border-[#EDEFF2] hover:border-[#9B59B6] hover:bg-[#F2EAF8] p-4 rounded-2xl font-bold text-gray-700 transition-colors">
+                    ⚡ Coordinar gente y eventos
+                </button>
+                <button onclick="finishTest('Comunicador Creativo')" class="w-full text-left bg-white border-2 border-[#EDEFF2] hover:border-[#1BBFBF] hover:bg-[#E3F8F8] p-4 rounded-2xl font-bold text-gray-700 transition-colors">
+                    🎨 Diseñar y comunicar
+                </button>
+            </div>
+        </div>
+
+        <!-- PANTALLA RESULTADO TEST -->
+        <div id="screen-test-resultado" class="hidden space-y-6 text-center mt-10">
+            <h2 class="text-3xl font-900">¡Tu perfil está listo! 🚀</h2>
+            
+            <div id="perfil-card" class="bg-[#E8F8E7] border-2 border-[#4BB543] rounded-3xl p-6 space-y-4">
+                <div class="text-5xl" id="perfil-emoji">🌊</div>
+                <h3 class="text-xl font-900 text-[#4BB543]" id="perfil-titulo">GUARDIÁN PATAGÓNICO</h3>
+                <div class="text-left text-sm font-bold text-gray-600 space-y-2 bg-white p-4 rounded-2xl" id="perfil-fortalezas">
+                    <p>✨ Conexión con el entorno natural</p>
+                    <p>✨ Trabajo en equipo</p>
+                    <p>✨ Pensamiento científico</p>
+                </div>
+            </div>
+
+            <button onclick="changeScreen('screen-estudiante-home')" class="w-full bg-[#E91B8C] text-white font-900 py-4 px-6 rounded-2xl text-lg btn-3d mt-4" style="box-shadow: 0 4px 0 #b3005c;">
+                ¡Empezar a jugar! →
+            </button>
+        </div>
+
+        <!-- HOME DEL ESTUDIANTE -->
+        <div id="screen-estudiante-home" class="hidden space-y-8">
+            <div class="flex justify-between items-center bg-white sticky top-0 py-2 z-40">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 bg-[#FDE8F4] rounded-full flex items-center justify-center text-2xl border-2 border-[#E91B8C]">🎒</div>
+                    <div>
+                        <h3 class="font-900 text-lg leading-tight" id="home-nombre">Hola, Vale</h3>
+                        <p class="text-xs font-bold text-gray-400" id="home-nivel">Nivel 1 · Explorador</p>
+                    </div>
+                </div>
+                <div class="bg-[#FEF8E3] text-[#F7C022] font-900 px-4 py-2 rounded-full text-sm border-2 border-[#F7C022]" id="home-xp">
+                    0 XP
+                </div>
+            </div>
+
+            <div class="space-y-4">
+                <h2 class="text-xl font-900">Misiones para vos 🎯</h2>
+                <div class="flex gap-4 overflow-x-auto no-scrollbar pb-4 -mx-5 px-5" id="misiones-recomendadas">
+                    <!-- Generado dinámicamente -->
+                </div>
+            </div>
+
+            <div class="bg-[#F2EAF8] border-2 border-[#9B59B6] rounded-3xl p-5 relative overflow-hidden">
+                <h3 class="font-900 text-[#9B59B6] text-lg">Tu primer certificado</h3>
+                <p class="text-sm font-bold text-gray-600 mt-1">Completá 1 misión para desbloquear tu Certificado de Participación.</p>
+                <div class="mt-4 bg-white/50 h-3 rounded-full">
+                    <div class="bg-[#9B59B6] h-full rounded-full progress-bar" id="cert-progress" style="width: 0%"></div>
+                </div>
+                <div class="absolute -bottom-4 -right-2 text-6xl opacity-20">🏅</div>
+            </div>
+
+            <div class="text-center">
+                <button onclick="changeScreen('screen-tablero-misiones')" class="inline-block bg-[#E3F4FC] border-2 border-[#1B96D5] text-[#1B96D5] font-900 py-3 px-6 rounded-2xl text-base btn-3d" style="box-shadow: 0 4px 0 #1B96D5;">
+                    Ver todas las misiones →
+                </button>
+            </div>
+        </div>
+
+        <!-- TABLERO DE MISIONES -->
+        <div id="screen-tablero-misiones" class="hidden space-y-6">
+            <div class="flex items-center gap-3 mb-4">
+                <button onclick="changeScreen('screen-estudiante-home')" class="text-gray-400 font-bold text-xl">←</button>
+                <h2 class="text-2xl font-900">Tablero de Misiones</h2>
+            </div>
+
+            <div class="space-y-3">
+                <p class="text-xs font-bold text-gray-500">FILTRAR POR CATEGORÍA</p>
+                <div class="flex gap-2 overflow-x-auto no-scrollbar pb-2">
+                    <button class="filter-pill active px-4 py-2 bg-[#1A1A2E] text-white rounded-full text-xs font-900 whitespace-nowrap" onclick="filterMisiones('todas')">Todas</button>
+                    <button class="filter-pill px-4 py-2 bg-[#E8F8E7] text-[#4BB543] rounded-full text-xs font-900 whitespace-nowrap border-2 border-[#4BB543]" onclick="filterMisiones('conservacion')">🐳 Conservación</button>
+                    <button class="filter-pill px-4 py-2 bg-[#E3F4FC] text-[#1B96D5] rounded-full text-xs font-900 whitespace-nowrap border-2 border-[#1B96D5]" onclick="filterMisiones('datos')">📊 Datos</button>
+                    <button class="filter-pill px-4 py-2 bg-[#FDE8F4] text-[#E91B8C] rounded-full text-xs font-900 whitespace-nowrap border-2 border-[#E91B8C]" onclick="filterMisiones('marketing')">📱 Marketing</button>
+                    <button class="filter-pill px-4 py-2 bg-[#FEF8E3] text-[#F7C022] rounded-full text-xs font-900 whitespace-nowrap border-2 border-[#F7C022]" onclick="filterMisiones('turismo')">🗺️ Turismo</button>
+                </div>
+            </div>
+
+            <div id="misiones-lista" class="space-y-3">
+                <!-- Generado dinámicamente -->
+            </div>
+        </div>
+
+        <!-- DETALLE DE MISIÓN -->
+        <div id="screen-detalle-mision" class="hidden space-y-6">
+            <div class="flex items-center gap-3 mb-4">
+                <button onclick="changeScreen('screen-tablero-misiones')" class="text-gray-400 font-bold text-xl">←</button>
+            </div>
+
+            <div id="detalle-contenido" class="space-y-6">
+                <!-- Generado dinámicamente -->
+            </div>
+        </div>
+
+        <!-- PERFIL DEL ESTUDIANTE -->
+        <div id="screen-perfil" class="hidden space-y-8">
+            <div class="flex items-center gap-3 mb-4">
+                <button onclick="changeScreen('screen-estudiante-home')" class="text-gray-400 font-bold text-xl">←</button>
+                <h2 class="text-2xl font-900">Mi Perfil</h2>
+            </div>
+
+            <div class="bg-gradient-to-r from-[#E91B8C]/10 to-[#1B96D5]/10 border-2 border-[#E91B8C] rounded-3xl p-6 text-center space-y-3">
+                <div class="text-5xl">🎒</div>
+                <h3 class="text-2xl font-900" id="perfil-nombre-estudiante">Valentina López</h3>
+                <p class="text-sm font-bold text-gray-600" id="perfil-nivel-estudiante">Nivel 1 · Explorador Patagónico</p>
+                <div class="bg-white/50 h-3 rounded-full mt-2">
+                    <div class="bg-gradient-to-r from-[#E91B8C] to-[#F7C022] h-full rounded-full" style="width: 25%"></div>
+                </div>
+                <p class="text-xs font-bold text-gray-600" id="perfil-xp-total">125 / 500 XP</p>
+            </div>
+
+            <div class="space-y-4">
+                <h3 class="text-lg font-900">Mi Perfil Vocacional</h3>
+                <div class="bg-[#E8F8E7] border-2 border-[#4BB543] rounded-2xl p-4">
+                    <p class="font-900 text-[#4BB543] text-sm" id="perfil-vocacional">🌊 Guardián Patagónico</p>
+                    <p class="text-xs font-bold text-gray-600 mt-2" id="perfil-desc-vocacional">Conexión con el entorno · Trabajo en equipo · Pensamiento científico</p>
+                </div>
+            </div>
+
+            <div class="space-y-4">
+                <h3 class="text-lg font-900">Mis Misiones</h3>
+                <div class="space-y-2" id="perfil-misiones-list">
+                    <p class="text-sm font-bold text-gray-500">Sin misiones tomadas aún.</p>
+                </div>
+            </div>
+
+            <div class="space-y-4">
+                <h3 class="text-lg font-900">Mis Certificados</h3>
+                <button onclick="changeScreen('screen-certificados')" class="w-full bg-[#F2EAF8] border-2 border-[#9B59B6] text-[#9B59B6] font-900 py-4 px-6 rounded-2xl text-base">
+                    Ver mis certificados →
+                </button>
+            </div>
+        </div>
+
+        <!-- CERTIFICADOS -->
+        <div id="screen-certificados" class="hidden space-y-6">
+            <div class="flex items-center gap-3 mb-4">
+                <button onclick="changeScreen('screen-perfil')" class="text-gray-400 font-bold text-xl">←</button>
+                <h2 class="text-2xl font-900">Tus Logros 🏅</h2>
+            </div>
+
+            <div class="space-y-4">
+                <!-- NIVEL 1 -->
+                <div class="bg-[#E8F8E7] border-2 border-[#4BB543] rounded-3xl p-5 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <h3 class="font-900 text-[#4BB543]">Certificado de Participación</h3>
+                        <span class="text-2xl">🌱</span>
+                    </div>
+                    <p class="text-xs font-bold text-gray-600">Requiere: Completar 1 misión</p>
+                    <div class="bg-white/50 h-2 rounded-full">
+                        <div class="bg-[#4BB543] h-full rounded-full progress-bar" style="width: 25%"></div>
+                    </div>
+                    <p class="text-xs font-bold text-gray-600">25% completado</p>
+                </div>
+
+                <!-- NIVEL 2 -->
+                <div class="bg-[#E3F4FC] border-2 border-[#1B96D5] rounded-3xl p-5 space-y-3 opacity-50">
+                    <div class="flex items-center justify-between">
+                        <h3 class="font-900 text-[#1B96D5]">Certificado de Competencia</h3>
+                        <span class="text-2xl">⭐</span>
+                    </div>
+                    <p class="text-xs font-bold text-gray-600">Bloqueado · Completa el Nivel 1 primero</p>
+                </div>
+
+                <!-- NIVEL 3 -->
+                <div class="bg-[#FEF8E3] border-2 border-[#F7C022] rounded-3xl p-5 space-y-3 opacity-50">
+                    <div class="flex items-center justify-between">
+                        <h3 class="font-900 text-[#F7C022]">Aval Institucional</h3>
+                        <span class="text-2xl">🏅</span>
+                    </div>
+                    <p class="text-xs font-bold text-gray-600">Bloqueado · Completa los Niveles 1 y 2</p>
+                </div>
+            </div>
+
+            <div class="bg-[#F2EAF8] border-2 border-[#9B59B6] rounded-2xl p-4 mt-6">
+                <p class="text-xs font-bold text-gray-700">
+                    📜 <strong>Reconocimiento oficial:</strong> Los certificados son válidos como horas de práctica profesionalizante según la Provincia del Chubut.
+                </p>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- NAVEGACIÓN INFERIOR -->
+    <nav id="bottom-nav" class="hidden fixed bottom-0 w-full max-w-[430px] left-1/2 transform -translate-x-1/2 bg-white border-t-2 border-[#EDEFF2] px-6 py-4 flex justify-between items-center pb-8 z-50">
+        <button onclick="changeScreen('screen-estudiante-home')" class="text-[#E91B8C] flex flex-col items-center gap-1">
+            <span class="text-xl">🏠</span>
+            <span class="text-[10px] font-900">Inicio</span>
+        </button>
+        <button onclick="changeScreen('screen-tablero-misiones')" class="text-gray-400 hover:text-gray-600 flex flex-col items-center gap-1 transition-colors">
+            <span class="text-xl">🎯</span>
+            <span class="text-[10px] font-900">Misiones</span>
+        </button>
+        <button onclick="changeScreen('screen-certificados')" class="text-gray-400 hover:text-gray-600 flex flex-col items-center gap-1 transition-colors">
+            <span class="text-xl">🏅</span>
+            <span class="text-[10px] font-900">Logros</span>
+        </button>
+        <button onclick="changeScreen('screen-perfil')" class="text-gray-400 hover:text-gray-600 flex flex-col items-center gap-1 transition-colors">
+            <span class="text-xl">👤</span>
+            <span class="text-[10px] font-900">Perfil</span>
+        </button>
+        <button onclick="changeScreen('screen-login')" class="text-gray-400 hover:text-gray-600 flex flex-col items-center gap-1 transition-colors">
+            <span class="text-xl">🚪</span>
+            <span class="text-[10px] font-900">Salir</span>
+        </button>
+    </nav>
+
+    <script>
+        // ===== DATOS HARDCODEADOS =====
+        const misiones = [
+            {
+                id: 1,
+                empresa: "CONICET Patagonia",
+                titulo: "Asistente de registro GPS de avistajes de ballena sei",
+                categoria: "conservacion",
+                categoriaLabel: "🐳 Conservación",
+                estado: "abierta",
+                anoRecomendado: "4to año",
+                cuposTotal: 3,
+                cuposOcupados: 0,
+                xp: 250,
+                color: "#4BB543",
+                colorBg: "#E8F8E7",
+                descripcion: "Ayudá a científicos del CONICET a registrar y mapear avistajes de ballenas sei en la costa de Rada Tilly. Usarás GPS y datos en tiempo real para contribuir a la conservación marina.",
+                publicadoHace: "Ayer"
+            },
+            {
+                id: 2,
+                empresa: "Hotel Costero Rada Tilly",
+                titulo: "Estrategia de redes sociales para temporada alta",
+                categoria: "marketing",
+                categoriaLabel: "📱 Marketing Digital",
+                estado: "abierta",
+                anoRecomendado: "5to año",
+                cuposTotal: 1,
+                cuposOcupados: 0,
+                xp: 220,
+                color: "#E91B8C",
+                colorBg: "#FDE8F4",
+                descripcion: "Diseñá el contenido para Instagram, TikTok y Facebook del hotel. Crearás posts, historias y reels promocionando Rada Tilly y las ballenas sei.",
+                publicadoHace: "Hace 3 días"
+            },
+            {
+                id: 3,
+                empresa: "Municipio Rada Tilly",
+                titulo: "Digitalización de registros de visitantes del parque",
+                categoria: "datos",
+                categoriaLabel: "📊 Gestión de Datos",
+                estado: "encurso",
+                anoRecomendado: "4to-5to año",
+                cuposTotal: 2,
+                cuposOcupados: 2,
+                xp: 180,
+                color: "#1B96D5",
+                colorBg: "#E3F4FC",
+                descripcion: "Organizá y sistematizá en Excel/Sheets los datos de turistas que visitan el parque municipal. Crearás gráficos y reportes.",
+                publicadoHace: "Hace 1 semana"
+            },
+            {
+                id: 4,
+                empresa: "Avistaje Patagonia SRL",
+                titulo: "Guía digital multilingüe de avistaje de ballena sei",
+                categoria: "turismo",
+                categoriaLabel: "🗺️ Turismo",
+                estado: "abierta",
+                anoRecomendado: "4to-5to año",
+                cuposTotal: 2,
+                cuposOcupados: 0,
+                xp: 200,
+                color: "#F7C022",
+                colorBg: "#FEF8E3",
+                descripcion: "Creá una guía interactiva en HTML/Canva con información sobre ballenas sei, mejores épocas para avistaje, y consejos de seguridad en español e inglés.",
+                publicadoHace: "Hace 2 días"
+            },
+            {
+                id: 5,
+                empresa: "Restaurante La Ballena",
+                titulo: "Sistema de reservas online para temporada",
+                categoria: "datos",
+                categoriaLabel: "📊 Gestión de Datos",
+                estado: "abierta",
+                anoRecomendado: "5to año",
+                cuposTotal: 1,
+                cuposOcupados: 0,
+                xp: 140,
+                color: "#1B96D5",
+                colorBg: "#E3F4FC",
+                descripcion: "Diseñá un sistema de reservas con Google Forms o similar. Crearás el formulario, base de datos y reportes diarios.",
+                publicadoHace: "Hace 5 días"
+            },
+            {
+                id: 6,
+                empresa: "Agencia Turismo Comodoro",
+                titulo: "Contenido para guía turística digital de Rada Tilly",
+                categoria: "marketing",
+                categoriaLabel: "📱 Marketing Digital",
+                estado: "completada",
+                anoRecomendado: "3er-4to año",
+                cuposTotal: 2,
+                cuposOcupados: 2,
+                xp: 220,
+                color: "#E91B8C",
+                colorBg: "#FDE8F4",
+                descripcion: "Escribí y editá contenido atractivo sobre lugares, restaurantes y actividades en Rada Tilly para la guía digital.",
+                publicadoHace: "Completada"
+            }
+        ];
+
+        const perfiles = {
+            "Creador Digital": {
+                emoji: "📱",
+                fortalezas: ["Comunicación efectiva", "Creatividad digital", "Storytelling"],
+                color: "#E91B8C",
+                colorBg: "#FDE8F4"
+            },
+            "Guardián Patagónico": {
+                emoji: "🌊",
+                fortalezas: ["Conexión con entorno natural", "Trabajo en equipo", "Pensamiento científico"],
+                color: "#4BB543",
+                colorBg: "#E8F8E7"
+            },
+            "Anfitrión Local": {
+                emoji: "🗺️",
+                fortalezas: ["Atención al visitante", "Comunicación", "Empatía"],
+                color: "#F7C022",
+                colorBg: "#FEF8E3"
+            },
+            "Analista de Datos": {
+                emoji: "📊",
+                fortalezas: ["Análisis lógico", "Organización", "Precisión"],
+                color: "#1B96D5",
+                colorBg: "#E3F4FC"
+            },
+            "Organizador Maestro": {
+                emoji: "⚡",
+                fortalezas: ["Coordinación", "Planificación", "Liderazgo"],
+                color: "#9B59B6",
+                colorBg: "#F2EAF8"
+            },
+            "Comunicador Creativo": {
+                emoji: "🎨",
+                fortalezas: ["Diseño visual", "Expresión", "Innovación"],
+                color: "#1BBFBF",
+                colorBg: "#E3F8F8"
+            }
+        };
+
+        let datosEstudiante = {
+            nombre: "Valentina López",
+            ano: "4",
+            email: "vale@escuela.edu.ar",
+            perfil: "Guardián Patagónico",
+            xp: 0,
+            nivel: 1,
+            misionesTomadas: [],
+            completadas: []
+        };
+
+        let misionActualSeleccionada = null;
+
+        // ===== FUNCIONES DE NAVEGACIÓN =====
+        function changeScreen(screenId) {
+            document.querySelectorAll('main > div').forEach(div => {
+                div.classList.add('hidden');
+                div.classList.remove('fade-in');
+            });
+            
+            const target = document.getElementById(screenId);
+            target.classList.remove('hidden');
+            void target.offsetWidth;
+            target.classList.add('fade-in');
+
+            if(['screen-estudiante-home', 'screen-tablero-misiones', 'screen-certificados', 'screen-perfil'].includes(screenId)) {
+                document.getElementById('bottom-nav').classList.remove('hidden');
+            } else {
+                document.getElementById('bottom-nav').classList.add('hidden');
+            }
+
+            if(screenId === 'screen-tablero-misiones') {
+                renderMisiones('todas');
+            } else if(screenId === 'screen-estudiante-home') {
+                renderMisionesRecomendadas();
+                actualizarUIEstudiante();
+            } else if(screenId === 'screen-perfil') {
+                actualizarPerfil();
+            }
+
+            window.scrollTo(0, 0);
+        }
+
+        function goToStep2Registro() {
+            const nombre = document.getElementById('reg-nombre').value;
+            const ano = document.getElementById('reg-ano').value;
+            const email = document.getElementById('reg-email').value;
+            const acepta = document.getElementById('reg-acepta').checked;
+
+            if(!nombre || !ano || !email || !acepta) {
+                alert('Por favor completa todos los campos y acepta las condiciones.');
+                return;
+            }
+
+            datosEstudiante.nombre = nombre;
+            datosEstudiante.ano = ano;
+            datosEstudiante.email = email;
+
+            changeScreen('screen-registro-vocacional');
+        }
+
+        function finishTest(perfil) {
+            datosEstudiante.perfil = perfil;
+            const perfilData = perfiles[perfil];
+            
+            document.getElementById('perfil-emoji').textContent = perfilData.emoji;
+            document.getElementById('perfil-titulo').textContent = perfil.toUpperCase();
+            document.getElementById('perfil-fortalezas').innerHTML = 
+                perfilData.fortalezas.map(f => `<p>✨ ${f}</p>`).join('');
+            
+            document.getElementById('perfil-card').style.backgroundColor = perfilData.colorBg;
+            document.getElementById('perfil-card').style.borderColor = perfilData.color;
+            
+            datosEstudiante.xp = 50;
+            changeScreen('screen-test-resultado');
+        }
+
+        function handleLoginDemo(rol) {
+            alert(`Vista de ${rol} en construcción. ¡Pronto disponible!`);
+        }
+
+        // ===== RENDERIZADO DE MISIONES =====
+        function renderMisionesRecomendadas() {
+            const container = document.getElementById('misiones-recomendadas');
+            const misionesRecomendadas = misiones.slice(0, 3);
+            
+            container.innerHTML = misionesRecomendadas.map(m => `
+                <div onclick="mostrarDetalleMision(${m.id})" class="min-w-[260px] bg-white border-2 border-[#EDEFF2] rounded-3xl p-5 border-l-8 shadow-sm cursor-pointer hover:shadow-md transition-shadow" style="border-left-color: ${m.color};">
+                    <span class="text-xs font-bold px-2 py-1 rounded-md" style="background-color: ${m.colorBg}; color: ${m.color};">${m.categoriaLabel}</span>
+                    <h3 class="font-900 mt-2 text-lg">${m.titulo}</h3>
+                    <p class="text-sm font-bold text-gray-500 mt-1">${m.empresa}</p>
+                    <div class="flex justify-between items-center mt-4">
+                        <span class="text-xs font-bold text-gray-400">${m.anoRecomendado} · ${m.cuposTotal - m.cuposOcupados} cupos</span>
+                        <span class="text-[#F7C022] font-900">+${m.xp} XP</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderMisiones(filtro) {
+            const container = document.getElementById('misiones-lista');
+            let misionesFiltradas = misiones;
+
+            if(filtro !== 'todas') {
+                misionesFiltradas = misiones.filter(m => m.categoria === filtro);
+            }
+
+            container.innerHTML = misionesFiltradas.map(m => `
+                <div onclick="mostrarDetalleMision(${m.id})" class="bg-white border-2 border-[#EDEFF2] rounded-3xl p-4 border-l-8 cursor-pointer hover:shadow-md transition-all" style="border-left-color: ${m.color};">
+                    <div class="flex justify-between items-start gap-3">
+                        <div class="flex-1">
+                            <span class="text-xs font-bold px-2 py-1 rounded-md" style="background-color: ${m.colorBg}; color: ${m.color};">${m.categoriaLabel}</span>
+                            <h3 class="font-900 mt-2 text-base">${m.titulo}</h3>
+                            <p class="text-xs font-bold text-gray-500 mt-1">${m.empresa}</p>
+                            <div class="flex justify-between items-center mt-3 text-xs font-bold text-gray-400">
+                                <span>${m.anoRecomendado} · ${m.cuposOcupados}/${m.cuposTotal} cupos</span>
+                                <span style="color: ${m.color}; font-weight: 900;">+${m.xp} XP</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function mostrarDetalleMision(id) {
+            misionActualSeleccionada = misiones.find(m => m.id === id);
+            const m = misionActualSeleccionada;
+            const perfilData = perfiles[datosEstudiante.perfil];
+
+            let botton = '';
+            if(m.estado === 'completada') {
+                botton = '<button class="w-full bg-gray-300 text-gray-600 font-900 py-4 px-6 rounded-2xl text-lg" disabled>🔒 Misión Cerrada</button>';
+            } else if(datosEstudiante.misionesTomadas.includes(m.id)) {
+                botton = '<button class="w-full bg-[#4BB543] text-white font-900 py-4 px-6 rounded-2xl text-lg btn-3d" style="box-shadow: 0 4px 0 #2d7a2f;">✅ Ya tomaste esta misión</button>';
+            } else {
+                botton = `<button onclick="tomarMision(${m.id})" class="w-full text-white font-900 py-4 px-6 rounded-2xl text-lg btn-3d" style="background-color: ${m.color}; box-shadow: 0 4px 0 ${m.color}80;">⚡ Tomar esta misión</button>`;
+            }
+
+            document.getElementById('detalle-contenido').innerHTML = `
+                <div class="space-y-6">
+                    <div class="space-y-3">
+                        <span class="text-xs font-bold px-3 py-1.5 rounded-full" style="background-color: ${m.colorBg}; color: ${m.color};">${m.categoriaLabel}</span>
+                        <h2 class="text-3xl font-900">${m.titulo}</h2>
+                        <p class="text-lg font-bold text-gray-600">${m.empresa}</p>
+                    </div>
+
+                    <div class="bg-[#F8F9FA] rounded-2xl p-4 space-y-2">
+                        <p class="text-sm font-bold text-gray-700">${m.descripcion}</p>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-white border-2 border-[#EDEFF2] rounded-2xl p-4 text-center">
+                            <p class="text-2xl font-900" style="color: ${m.color};">+${m.xp}</p>
+                            <p class="text-xs font-bold text-gray-500 mt-1">XP</p>
+                        </div>
+                        <div class="bg-white border-2 border-[#EDEFF2] rounded-2xl p-4 text-center">
+                            <p class="text-2xl font-900" style="color: ${m.color};">${m.cuposOcupados}/${m.cuposTotal}</p>
+                            <p class="text-xs font-bold text-gray-500 mt-1">Cupos</p>
+                        </div>
+                        <div class="bg-white border-2 border-[#EDEFF2] rounded-2xl p-4 text-center">
+                            <p class="text-2xl font-900" style="color: ${m.color};">📚</p>
+                            <p class="text-xs font-bold text-gray-500 mt-1">${m.anoRecomendado}</p>
+                        </div>
+                        <div class="bg-white border-2 border-[#EDEFF2] rounded-2xl p-4 text-center">
+                            <p class="text-2xl font-900" style="color: ${m.color};">📅</p>
+                            <p class="text-xs font-bold text-gray-500 mt-1">${m.publicadoHace}</p>
+                        </div>
+                    </div>
+
+                    ${botton}
+                </div>
+            `;
+
+            changeScreen('screen-detalle-mision');
+        }
+
+        function tomarMision(id) {
+            datosEstudiante.misionesTomadas.push(id);
+            datosEstudiante.xp += 25;
+            
+            crearConfetti();
+            mostrarToast(`+25 XP · ¡Misión tomada! ⚡`);
+
+            setTimeout(() => {
+                mostrarDetalleMision(id);
+            }, 500);
+        }
+
+        function crearConfetti() {
+            const confettiPieces = ['🎉', '✨', '🚀', '⭐', '🎊'];
+            for(let i = 0; i < 20; i++) {
+                const conf = document.createElement('div');
+                conf.classList.add('confetti');
+                conf.textContent = confettiPieces[Math.floor(Math.random() * confettiPieces.length)];
+                conf.style.left = Math.random() * 100 + '%';
+                conf.style.top = 0;
+                conf.style.fontSize = (Math.random() * 20 + 10) + 'px';
+                document.body.appendChild(conf);
+                setTimeout(() => conf.remove(), 600);
+            }
+        }
+
+        function mostrarToast(mensaje) {
+            const toast = document.createElement('div');
+            toast.textContent = mensaje;
+            toast.style.cssText = `
+                position: fixed;
+                bottom: 100px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: #1A1A2E;
+                color: white;
+                padding: 12px 24px;
+                border-radius: 50px;
+                font-weight: 900;
+                font-size: 14px;
+                animation: slideUp 0.3s ease;
+                z-index: 1000;
+            `;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 2000);
+        }
+
+        function filterMisiones(categoria) {
+            renderMisiones(categoria);
+            
+            // Actualizar botones de filtro
+            document.querySelectorAll('.filter-pill').forEach(btn => {
+                btn.classList.remove('active');
+                if(btn.textContent.toLowerCase().includes(categoria)) {
+                    btn.classList.add('active');
+                }
+            });
+            if(categoria === 'todas') {
+                document.querySelectorAll('.filter-pill')[0].classList.add('active');
+            }
+        }
+
+        function actualizarUIEstudiante() {
+            const perfilData = perfiles[datosEstudiante.perfil];
+            document.getElementById('home-nombre').textContent = `Hola, ${datosEstudiante.nombre.split(' ')[0]}`;
+            document.getElementById('home-xp').textContent = `${datosEstudiante.xp} XP`;
+            
+            // Calcular progreso certificado (25% por misión tomada)
+            const progreso = Math.min((datosEstudiante.misionesTomadas.length * 25), 100);
+            document.getElementById('cert-progress').style.width = progreso + '%';
+        }
+
+        function actualizarPerfil() {
+            const perfilData = perfiles[datosEstudiante.perfil];
+            document.getElementById('perfil-nombre-estudiante').textContent = datosEstudiante.nombre;
+            document.getElementById('perfil-nivel-estudiante').textContent = `Nivel ${datosEstudiante.nivel} · ${datosEstudiante.perfil}`;
+            document.getElementById('perfil-xp-total').textContent = `${datosEstudiante.xp} / 500 XP`;
+            document.getElementById('perfil-vocacional').textContent = `${perfilData.emoji} ${datosEstudiante.perfil}`;
+            document.getElementById('perfil-desc-vocacional').textContent = perfilData.fortalezas.join(' · ');
+            
+            const listaMisiones = document.getElementById('perfil-misiones-list');
+            if(datosEstudiante.misionesTomadas.length > 0) {
+                listaMisiones.innerHTML = datosEstudiante.misionesTomadas.map(id => {
+                    const m = misiones.find(x => x.id === id);
+                    return `
+                        <div class="bg-white border-2 border-[#EDEFF2] rounded-2xl p-3">
+                            <p class="font-bold text-sm">${m.titulo}</p>
+                            <p class="text-xs font-bold text-gray-500 mt-1">${m.empresa}</p>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+    </script>
+</body>
+</html>
